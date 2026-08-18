@@ -16,10 +16,10 @@
 </div>
 
 <div align="center">
-  <h3>🤖 Ett autonomt startup-bygge för AI-skapade produkter</h3>
+  <h3>🤖 Autonomous startup building for AI-generated products</h3>
 </div>
 
-> 🚀 Detta repo är en senior-nivå produktionsplattform för att transformera en idé till ett verifierat MVP med AI-agenter, automatiserad kodgenerering, testning, byggvalidering och produktanalys.
+> 🚀 This repository is a senior-level production platform for transforming an idea into a verified MVP using AI agents, automated code generation, testing, build validation, and product analysis.
 
 ---
 
@@ -31,178 +31,174 @@
   <img src="https://img.shields.io/badge/Workflow-Architecture%20%7C%20Testing%20%7C%20Verification-ffffff?style=flat-square" alt="Workflow" />
 </div>
 
-Detta repo visar en struktur, säkerhetstänkande och systemdesign som typiskt kännetecknar avancerad mjukvaruutveckling: tydlig arkitektur, verifierbar körning, låsning av dependency-versioner, stark återföring av data och en produktionsinriktad AI-loop.
+This repository demonstrates a structure, security mindset, and system design typical of advanced software development: clear architecture, verifiable execution, pinned dependency versions, strong feedback loops, and a production-oriented AI workflow.
 
 ---
 
-## ✨ Välkommen till AgentCofounder
+## ✨ Welcome to AgentCofounder
+
+This project builds an open, autonomous, and scalable AI pipeline that can:
+
+- take an idea or problem from natural language;
+- turn it into a product vision, functionality, and user flows;
+- generate a working application in a separate workspace;
+- run tests, build validation, app startup, and verification;
+- evaluate the result and produce structured run output for further iteration.
+
+This repository acts as a strong foundation for a future "AI cofounder" that can manage a large part of early-stage product development: idea analysis, prototyping, MVP delivery, business logic, UX, QA, and engineering in a more systematic loop.
+
+The goal is not only to generate an app. The goal is to build an operational AI-powered production engine capable of creating, testing, and refining digital products with evidence instead of guesswork.
 
 ---
 
-## ✨ Välkommen till AgentCofounder
+## 🧠 What I am building in this repo
 
-Det här projektet bygger en öppen, autonom och skalbar AI-kedja som kan:
+I am building an autonomous system for creating companies and products with AI agents. It is a tool that can:
 
-- ta en idé eller ett problem från naturlig språktext;
-- omvandla den till en produktvision, funktionalitet och användarflöden;
-- generera en fungerande applikation i en separat arbetsyta;
-- köra tester, bygg, validering och start av appen;
-- utvärdera resultatet och producera ett strukturerat "run output" för vidare utveckling.
+1. understand a startup idea or use case;
+2. formulate a solution concept;
+3. generate the entire product in an isolated app workspace;
+4. verify that the app works in real execution;
+5. produce measurable output in the form of results, insights, and structured artifacts.
 
-Det här repot fungerar som en robust grund för en framtida "AI cofounder" som kan sköta en stor del av den tidiga produktutvecklingen: idéanalys, prototyp, MVP, affärslogik, UX, QA, och utveckling i en mer systematisk loop.
+This is a type of agentic production stack for early-stage startup and product work:
 
-Målet är inte bara att generera en app. Målet är att bygga en operational AI-baserad produktionsmotor som kan skapa, testa och förfina digitala produkter med evidens snarare än gissningar.
+- AI-driven idea analysis
+- System prompt-based problem solving
+- Generative frontend/backend development
+- Validation through tests and build checks
+- Quality assurance via verification against real code
+- Structured output for iterative execution and improvement
 
----
+In practice, this means building a "full-stack AI startup partner" that can help in the earliest phase of turning a concept into something that actually runs, is tested, and can be evaluated.
 
-## 🧠 Vad jag bygger i detta repo
+It sits at the intersection of:
 
-Jag bygger ett autonomt system för att skapa företag och produkter med hjälp av AI-agenter. Det handlar om ett verktyg som kan:
-
-1. förstå en startupidé eller användningsfall;
-2. formulera ett lösningskoncept;
-3. generera hela produkten i en fristående app-arbetsyta;
-4. verifiera att appen fungerar i verkliga körningar;
-5. producera mätbara output i form av resultat, insikter och strukturerade artefakter.
-
-Det här är en typ av agentisk produktionsstack för tidiga start-up- och produktprojekt:
-
-- AI-driverad idéanalys
-- Systemprompt-baserad problemlösning
-- Generativ utveckling av frontend/backend
-- Validering med tester och byggsvit
-- Kvalitetssäkring via verifiering mot real code
-- Strukturerad output för vidare iteration eller exekvering
-
-I praktiken handlar det om att bygga en "full-stack AI-startup partner" som kan hjälpa till i den allra första fasen av att konvertera ett koncept till något som faktiskt går att köra, testa och utvärdera.
-
-Det är ett projekt i gränssnittet mellan:
-
-- agentisk AI
-- produktutveckling
+- agentic AI
+- product development
 - automation
 - prototyping
-- startup-building
+- startup building
 - open-source engineering
 
 ---
 
-## ⚙️ Hur repot faktiskt fungerar
+## ⚙️ How the repo works
 
-Detta repo är byggt som en challenge-/harness-arkitektur för att få en AI-agent att köra en produktionsloop i en isolerad app-miljö.
+This repo is built as a challenge/harness architecture to get an AI agent to run a production loop in an isolated app environment.
 
-### Kärnprincip
+### Core principle
 
-- `solution/` är själva deltagar-/agentytan där prompt, extension, skills och körstrategi kan anpassas.
-- `app-template/` innehåller en neutral, generisk app-seed som användes som bas för genererad kod.
-- `contract-public/` innehåller den offentliga idén, guider och schema för output.
-- `src/` innehåller körlogiken, verifieringsflödet och resultatinsamlingen.
-- `output/app/` är den genererade applikationen under körning.
-- `artifacts/` lagrar kördata, loggar och sessionsinformation.
+- `solution/` is the participant/agent surface where prompts, extensions, skills, and runner strategy can be adapted.
+- `app-template/` contains the neutral, generic app seed used as the foundation for generated code.
+- `contract-public/` contains the public idea, guides, and output schema.
+- `src/` contains the runner, verification flow, and result assembly logic.
+- `output/app/` is the generated application during execution.
+- `artifacts/` stores run data, logs, and session information.
 
-Det betyder att systemet är designat för att vara deterministiskt, auditerbart och verifierbart. Det gör inte bara "AI magic", det bygger en spårbar, testbar pipeline från idé till körbar app.
-
----
-
-## 🔬 Projektets vision
-
-Jag vill bygga en AI-driven produktionsplattform för entreprenörer, byggare och team som vill kunna:
-
-- snabbt omsätta idéer till kundvärde;
-- testa koncept utan att behöva bygga allt manuellt från noll;
-- använda autonoma agentarbeten för produktutveckling, UX-flöden och funktionell prototyping;
-- få ett strukturerat underlag för beslut, iteration och leverans.
-
-Det är en bit i ett större projekt om att skapa ett digitalt cofounder-liknande system för byggande av nya företag, produkter och tjänster.
+This means the system is designed to be deterministic, auditable, and verifiable. It does more than "AI magic"; it creates a traceable, testable pipeline from idea to runnable app.
 
 ---
 
-## 🛠️ Tech stack och struktur
+## 🔬 Vision
 
-Detta repo använder en modern TypeScript-/Node.js-stack med en AI-agent-motor och valideringsharness.
+I want to build an AI-powered production platform for entrepreneurs, builders, and teams who want to:
 
-### Huvudkomponenter
+- turn ideas into customer value quickly;
+- test concepts without building everything manually from scratch;
+- use autonomous agent work for product development, UX flows, and functional prototyping;
+- get structured input for decisions, iteration, and delivery.
 
-- `Node.js 22` med `TypeScript`
-- `Vitest` för tester
-- `Vite` för app-template
-- `Pi coding agent` för autonom AI-exekvering
-- `result validation` för att validera körningens output
-- `generated app workspace` för att skapa och verifiera produkten i realtid
-
-### Viktiga kataloger
-
-- `src/` – körande logik, resultathantering, verifiering
-- `solution/` – prompt, skills och agentstrategier
-- `app-template/` – neutral app-bas
-- `contract-public/` – idé, resultatens schema och krav
-- `output/` – genererad produktion
-- `test/` – testfall för systemets korrekta beteende
+This is part of a larger effort to create a digital founder-like system for building new companies, products, and services.
 
 ---
 
-## 🚀 Vad detta repo representerar i praktiken
+## 🛠️ Tech stack and structure
 
-Det här projektet är ett "agentic startup engine". Det kan användas för att:
+This repository uses a modern TypeScript/Node.js stack with an AI-agent engine and validation harness.
 
-- bygga MVP:er från idéer
-- automatisera prototyping för SaaS, verktyg, dashboards, workflows och produktkoncept
-- skapa produktutvecklingsloopar för digitala tjänster
-- experimentera med AI-baserad product management och engineering
-- bevisa att ett koncept kan omvandlas till kod, test och körbart resultat
+### Core components
 
-Det är alltså inte bara en app. Det är en byggplattform för att utvärdera om AI kan agera som produktutvecklare, designer och teknisk byggare i en konsekvent, verifierbar loop.
+- `Node.js 22` with `TypeScript`
+- `Vitest` for testing
+- `Vite` for the app template
+- `Pi coding agent` for autonomous AI execution
+- `result validation` to verify run output
+- `generated app workspace` to create and validate the product in real time
+
+### Key directories
+
+- `src/` – runtime logic, result handling, verification
+- `solution/` – prompts, skills, and agent strategies
+- `app-template/` – neutral app base
+- `contract-public/` – idea, schema, and requirements
+- `output/` – generated production
+- `test/` – test coverage for system behavior
 
 ---
 
-## 👤 Utvecklare
+## 🚀 What this repo represents in practice
 
-Detta projekt utvecklas av:
+This project is an "agentic startup engine." It can be used to:
+
+- build MVPs from ideas
+- automate prototyping for SaaS, tools, dashboards, workflows, and product concepts
+- create product development loops for digital services
+- experiment with AI-based product management and engineering
+- prove that a concept can be transformed into code, tests, and runnable output
+
+It is therefore not just an app. It is a build platform for evaluating whether AI can act as a product developer, designer, and technical builder in a consistent, verifiable loop.
+
+---
+
+## 👤 Developer
+
+This project is developed by:
 
 - Pelle Nybe
 - GitHub: https://github.com/PelleNybe
-- Portfolio/webbplats: https://pellenybe.github.com
+- Portfolio: https://pellenybe.github.com
 
 ---
 
-## 🏢 Företag / verksamhet
+## 🏢 Company / organization
 
-Projektet är kopplat till:
+The project is connected to:
 
 - Corax CoLAB
-- Webbsida: https://coraxcolab.com
+- Website: https://coraxcolab.com
 
-Corax CoLAB representerar den mer långsiktiga plattformen för experiment, byggande, samarbete och AI-driven innovation bakom själva produktionen i detta repo.
+Corax CoLAB represents the broader platform for experiments, building, collaboration, and AI-driven innovation behind the production work in this repository.
 
 ---
 
-## 🧩 Projektets långsiktiga mål
+## 🧩 Long-term goal
 
-Det övergripande målet är att skapa en systematisk AI-driven metod för att:
+The overarching goal is to create a systematic AI-driven method for:
 
-- identifiera värdefulla digitala produkter;
-- konvertera idéer till fungerande lösningar;
-- bygga autonomt utan att förlora kvalitet;
-- skapa ett öppet samarbetsverktyg för produktbyggande, iteration och experiment.
+- identifying valuable digital products;
+- turning ideas into working solutions;
+- building autonomously without losing quality;
+- creating an open collaboration tool for product building, iteration, and experimentation.
 
-Det här repot är ett konkret steg mot en framtid där AI inte bara skriver kod, utan också hjälper till att utforma, testa, validera och driva produktutveckling.
+This repo is a concrete step toward a future where AI does not only write code, but also helps design, test, validate, and drive product development.
 
 ---
 
 ## 📦 Repository boundary
 
-För att hålla projektet tydligt och verifierbart finns det tydliga gränser:
+To keep the project clear and verifiable, there are explicit boundaries:
 
-- `solution/` – huvudytan för agentimplementation och prompt-strategi
-- `app-template/` – neutral app-seed
-- `contract-public/` – offentligt kontrakt, idé och schema
-- `src/` – körlogik och audit/resultat
-- `output/app/` – genererad applikation
-- `artifacts/` – kördata och sessionloggar
+- `solution/` – main surface for agent implementation and prompt strategy
+- `app-template/` – neutral app seed
+- `contract-public/` – public contract, idea, and schema
+- `src/` – runtime logic and audit/result handling
+- `output/app/` – generated application
+- `artifacts/` – run data and session logs
 
 ---
 
-## ⚡ Snabbstart
+## ⚡ Quick start
 
 ```bash
 npm install
@@ -210,13 +206,13 @@ npm --prefix app-template install
 npm run check
 ```
 
-Kör en challenge:
+Run a challenge:
 
 ```bash
 npm run challenge
 ```
 
-Validera resultet:
+Validate the result:
 
 ```bash
 npm run validate:result -- output/app/result.json
@@ -246,9 +242,6 @@ saas
 prototype
 ai-engineering
 innovation
-startup-automation
-ai-product-development
-systems-design
 typescript
 nodejs
 ```
@@ -264,11 +257,11 @@ nodejs
   <img src="https://img.shields.io/badge/Business-Corax%20CoLAB-7c3aed?style=for-the-badge" alt="Business" />
 </div>
 
-Dette repo signalerar: hög kompetens inom modern webutveckling, arkitektur, verifiering, automation, systemdesign och AI-driven byggprocess. Det är en stark indikator på att utvecklaren arbetar i en mer avancerad, produktorienterad och strategi-drivna nivå än standard repo-innehåll.
+This repository signals strong capability in modern web development, architecture, verification, automation, system design, and AI-driven product building. It reflects a more advanced, product-oriented, and strategy-driven engineering level than a typical repository landing page.
 
 ---
 
-## 🌐 Kontakt och verksamhet
+## 🌐 Contact and organization
 
 - GitHub: https://github.com/PelleNybe
 - Portfolio: https://pellenybe.github.com
