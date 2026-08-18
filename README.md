@@ -155,7 +155,7 @@ It is therefore not just an app. It is a build platform for evaluating whether A
 
 This project is developed by:
 
-- Pelle Nybe
+- PelleNybe
 - GitHub: https://github.com/PelleNybe
 - Portfolio: https://pellenybe.github.com
 
