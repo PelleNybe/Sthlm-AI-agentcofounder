@@ -1,0 +1,10 @@
+.git
+.env
+.env.*
+node_modules
+.npm-cache
+app-template/node_modules
+app-template/dist
+artifacts
+output
+coverage

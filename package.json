@@ -1,0 +1,29 @@
+{
+  "name": "agent-cofounder-starter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "npm@10.9.3",
+  "engines": {
+    "node": ">=22.19.0 <23"
+  },
+  "scripts": {
+    "challenge": "node --import tsx src/run-challenge.ts",
+    "validate:result": "node --import tsx src/validate-result.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "app:test": "npm --prefix app-template test -- --passWithNoTests",
+    "app:build": "npm --prefix app-template run build",
+    "check": "npm run typecheck && npm run test && npm run app:test && npm run app:build"
+  },
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "0.84.1",
+    "ajv": "8.20.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.12.4",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3",
+    "vitest": "4.1.5"
+  }
+}

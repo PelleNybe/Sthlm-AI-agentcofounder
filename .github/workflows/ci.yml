@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            app-template/package-lock.json
+
+      - name: Install harness dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install application seed dependencies
+        run: npm --prefix app-template ci --ignore-scripts
+
+      - name: Run all checks
+        run: npm run check

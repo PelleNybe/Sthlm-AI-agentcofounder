@@ -1,0 +1,148 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AgentCofounder run result",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "status",
+    "app_url",
+    "start_command",
+    "summary",
+    "implemented_features",
+    "assumptions",
+    "tests_run",
+    "harness_checks",
+    "model_calls",
+    "input_tokens",
+    "output_tokens",
+    "cache_read_tokens",
+    "cache_write_tokens",
+    "total_tokens",
+    "reasoning_tokens",
+    "cost_total",
+    "call_log",
+    "pi_exit_code",
+    "telemetry_source",
+    "port_reclamation"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": { "status": { "const": "success" } },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "tests_run": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": { "result": { "const": "passed" } }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "status": { "enum": ["success", "partial", "failed"] },
+    "app_url": { "const": "http://localhost:3000" },
+    "start_command": { "type": "string", "minLength": 1 },
+    "summary": { "type": "string", "minLength": 1 },
+    "implemented_features": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "tests_run": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["command", "journey", "result"],
+        "properties": {
+          "command": { "type": "string", "minLength": 1 },
+          "journey": { "type": "string", "minLength": 1 },
+          "result": { "enum": ["passed", "failed"] }
+        }
+      }
+    },
+    "harness_checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["command", "journey", "result"],
+        "properties": {
+          "command": { "type": "string", "minLength": 1 },
+          "journey": { "type": "string", "minLength": 1 },
+          "result": { "enum": ["passed", "failed"] }
+        }
+      }
+    },
+    "model_calls": { "type": "integer", "minimum": 0 },
+    "input_tokens": { "type": "integer", "minimum": 0 },
+    "output_tokens": { "type": "integer", "minimum": 0 },
+    "cache_read_tokens": { "type": "integer", "minimum": 0 },
+    "cache_write_tokens": { "type": "integer", "minimum": 0 },
+    "total_tokens": { "type": "integer", "minimum": 0 },
+    "reasoning_tokens": { "type": "integer", "minimum": 0 },
+    "cost_total": { "type": "number", "minimum": 0 },
+    "call_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "index",
+          "model",
+          "input_tokens",
+          "output_tokens",
+          "cache_read_tokens",
+          "cache_write_tokens",
+          "total_tokens"
+        ],
+        "properties": {
+          "index": { "type": "integer", "minimum": 1 },
+          "model": { "type": "string", "minLength": 1 },
+          "input_tokens": { "type": "integer", "minimum": 0 },
+          "output_tokens": { "type": "integer", "minimum": 0 },
+          "cache_read_tokens": { "type": "integer", "minimum": 0 },
+          "cache_write_tokens": { "type": "integer", "minimum": 0 },
+          "total_tokens": { "type": "integer", "minimum": 0 },
+          "reasoning_tokens": { "type": "integer", "minimum": 0 },
+          "cost_total": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "pi_exit_code": { "type": "integer", "minimum": 0 },
+    "telemetry_source": { "const": "pi-json-event-stream" },
+    "port_reclamation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "preexisting_listener",
+        "listener_after_pi",
+        "attempted",
+        "reclaimed",
+        "process_ids",
+        "diagnostic"
+      ],
+      "properties": {
+        "preexisting_listener": { "type": "boolean" },
+        "listener_after_pi": { "type": "boolean" },
+        "attempted": { "type": "boolean" },
+        "reclaimed": { "type": "boolean" },
+        "process_ids": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 1 }
+        },
+        "diagnostic": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
