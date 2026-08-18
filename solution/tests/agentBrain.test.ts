@@ -40,7 +40,7 @@ describe('AgentCofounderOrchestrator', () => {
 
       if (users.length > 0) {
         await prisma.user.deleteMany({
-          where: { id: { in: users.map(u => u.id) } }
+          where: { id: { in: users.map((u: any) => u.id) } }
         });
       }
     } catch (e) {

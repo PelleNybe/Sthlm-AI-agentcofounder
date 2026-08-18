@@ -14,6 +14,7 @@
     "test": "vitest run",
     "app:test": "npm --prefix app-template test -- --passWithNoTests",
     "app:build": "npm --prefix app-template run build",
+    "precheck": "npm --prefix solution ci --ignore-scripts && cd solution && npx prisma generate",
     "check": "npm run typecheck && npm run test && npm run app:test && npm run app:build"
   },
   "dependencies": {

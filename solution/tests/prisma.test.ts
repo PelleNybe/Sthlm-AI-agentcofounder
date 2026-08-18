@@ -51,7 +51,7 @@ describe('Prisma Integration Tests', () => {
       if (users.length > 0) {
         await prisma.user.deleteMany({
           where: {
-            id: { in: users.map(u => u.id) }
+            id: { in: users.map((u: any) => u.id) }
           }
         });
       }
