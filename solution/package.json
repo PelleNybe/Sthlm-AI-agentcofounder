@@ -26,10 +26,12 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.9.1",
+    "@types/opossum": "^8.1.9",
     "bullmq": "^6.1.2",
     "express": "^4.22.2",
     "express-async-errors": "^3.1.1",
     "ioredis": "^6.0.0",
+    "opossum": "^10.0.0",
     "pg": "^8.23.0",
     "zod": "^4.4.3"
   }
