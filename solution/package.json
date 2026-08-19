@@ -11,10 +11,13 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^26.2.0",
     "@types/pg": "^8.23.1",
+    "@types/supertest": "^7.2.1",
     "@types/uuid": "^10.0.0",
     "prisma": "^7.9.1",
+    "supertest": "^7.2.2",
     "tsx": "^4.23.12",
     "typescript": "^7.0.2",
     "uuid": "^14.0.2",
@@ -24,6 +27,8 @@
     "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.9.1",
     "bullmq": "^6.1.2",
+    "express": "^4.22.2",
+    "express-async-errors": "^3.1.1",
     "ioredis": "^6.0.0",
     "pg": "^8.23.0",
     "zod": "^4.4.3"
