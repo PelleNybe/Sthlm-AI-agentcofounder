@@ -1,9 +1,11 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
   provider = "postgresql"
+  extensions = [vector]
 }
 
 model User {
@@ -21,6 +23,7 @@ model AgentTask {
   title       String
   description String?
   status      String   @default("PENDING")
+  embedding   Unsupported("vector(1536)")?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   userId      String

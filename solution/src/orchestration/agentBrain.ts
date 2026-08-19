@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import CircuitBreaker from 'opossum';
+import { generateEmbedding } from '../services/embeddingService.js';
 
 export class LlmNetworkError extends Error {
   constructor(message: string) {
@@ -63,7 +64,36 @@ export class AgentCofounderOrchestrator {
       throw new TaskNotFoundError(taskId);
     }
 
-    const llmResponse = await this.callExternalLLM(task.title, task.description || '');
+    const taskText = `Title: ${task.title}\nDescription: ${task.description || ''}`;
+    let currentEmbedding: number[] = [];
+    let historicalContext = '';
+
+    // Generate embedding for current task if API key is present
+    if (process.env.OPENAI_API_KEY) {
+        try {
+            currentEmbedding = await generateEmbedding(taskText);
+
+            // Search for similar previous tasks
+            const similarTasks = await this.prisma.$queryRaw<Array<{ id: string, title: string, status: string, distance: number }>>`
+                SELECT id, title, status, embedding <=> ${currentEmbedding}::vector as distance
+                FROM "AgentTask"
+                WHERE id != ${taskId} AND embedding IS NOT NULL
+                ORDER BY distance ASC
+                LIMIT 3
+            `;
+
+            if (similarTasks.length > 0) {
+                historicalContext = '\n\nHistorical context from similar past tasks:\n';
+                similarTasks.forEach(st => {
+                    historicalContext += `- Task: "${st.title}", Decision: ${st.status}\n`;
+                });
+            }
+        } catch (error) {
+            console.error("Failed to generate embedding or fetch history", error);
+        }
+    }
+
+    const llmResponse = await this.callExternalLLM(task.title, task.description || '', historicalContext);
 
     // Parse response
     const parsed = DecisionSchema.safeParse(llmResponse);
@@ -71,18 +101,30 @@ export class AgentCofounderOrchestrator {
       throw new LlmParsingError('Failed to parse LLM response: ' + parsed.error.message);
     }
 
-    const updatedTask = await this.prisma.agentTask.update({
-      where: { id: taskId },
-      data: {
-        status: parsed.data.decision,
-        description: (task.description || '') + '\n\nReasoning: ' + (parsed.data.reasoning || ''),
-      },
-    });
+    // Save decision and embedding
+    if (currentEmbedding.length > 0) {
+         await this.prisma.$executeRaw`
+            UPDATE "AgentTask"
+            SET status = ${parsed.data.decision},
+                description = ${task.description || ''} || '\n\nReasoning: ' || ${parsed.data.reasoning || ''},
+                embedding = ${currentEmbedding}::vector
+            WHERE id = ${taskId}
+        `;
 
-    return updatedTask;
+        return this.prisma.agentTask.findUnique({ where: { id: taskId } });
+    } else {
+        const updatedTask = await this.prisma.agentTask.update({
+            where: { id: taskId },
+            data: {
+              status: parsed.data.decision,
+              description: (task.description || '') + '\n\nReasoning: ' + (parsed.data.reasoning || ''),
+            },
+        });
+        return updatedTask;
+    }
   }
 
-  private async executeLlmFetch(apiKey: string, title: string, description: string): Promise<any> {
+  private async executeLlmFetch(apiKey: string, title: string, description: string, historicalContext: string): Promise<any> {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -99,7 +141,7 @@ export class AgentCofounderOrchestrator {
           },
           {
             role: 'user',
-            content: `Title: ${title}\nDescription: ${description}`
+            content: `Title: ${title}\nDescription: ${description}${historicalContext}`
           }
         ]
       }),
@@ -138,12 +180,12 @@ export class AgentCofounderOrchestrator {
     };
   }
 
-  private async callExternalLLM(title: string, description: string): Promise<any> {
+  private async callExternalLLM(title: string, description: string, historicalContext: string): Promise<any> {
     const apiKey = process.env.OPENAI_API_KEY;
 
     if (apiKey) {
       try {
-        return await this.llmBreaker.fire(apiKey, title, description);
+        return await this.llmBreaker.fire(apiKey, title, description, historicalContext);
       } catch (err: any) {
         if (err.code === 'EOPENBREAKER') {
           throw new LlmNetworkError('Service Unavailable: LLM Circuit breaker is open');
