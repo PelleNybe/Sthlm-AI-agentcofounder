@@ -112,7 +112,7 @@ describe('AgentCofounderOrchestrator', () => {
     for (let i = 0; i < 6; i++) {
         try {
             // Test callExternalLLM via type casting to bypass private modifier for testing
-            await (orchestrator as any).callExternalLLM('Test Title', 'Test Description');
+            await (orchestrator as any).callExternalLLM('Test Title', 'Test Description', '');
         } catch (error: any) {
             if (error instanceof LlmNetworkError) {
                 if (error.message.includes('Circuit breaker is open')) {

@@ -35,7 +35,7 @@ jobs:
         run: npm --prefix solution ci --ignore-scripts
 
       - name: Generate Prisma Client
-        run: npm --prefix solution exec prisma generate
+        run: cd solution && npm exec prisma generate
 
       - name: Run all checks
         run: npm run check
