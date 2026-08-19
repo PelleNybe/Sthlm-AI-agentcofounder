@@ -23,12 +23,19 @@ jobs:
           cache-dependency-path: |
             package-lock.json
             app-template/package-lock.json
+            solution/package-lock.json
 
       - name: Install harness dependencies
         run: npm ci --ignore-scripts
 
       - name: Install application seed dependencies
         run: npm --prefix app-template ci --ignore-scripts
+
+      - name: Install solution dependencies
+        run: npm --prefix solution ci --ignore-scripts
+
+      - name: Generate Prisma Client
+        run: npm --prefix solution exec prisma generate
 
       - name: Run all checks
         run: npm run check
