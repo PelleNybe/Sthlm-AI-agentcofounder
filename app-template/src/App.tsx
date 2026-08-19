@@ -1,13 +1,18 @@
+import { Dashboard } from "./Dashboard";
+
 export function App() {
   return (
-    <main className="shell">
-      <section className="placeholder" aria-labelledby="starter-title">
-        <p className="eyebrow">AgentCofounder</p>
-        <h1 id="starter-title">Ready to build</h1>
-        <p>
-          This neutral application seed is replaced by the participant harness during a challenge run.
+    <main className="min-h-screen bg-gray-50 p-8 dark:bg-gray-900 flex flex-col items-center">
+      <header className="mb-8 w-full max-w-4xl text-left">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          AgentCofounder Control Panel
+        </h1>
+        <p className="mt-2 text-gray-600 dark:text-gray-400">
+          Live monitoring and control for autonomous agents.
         </p>
-      </section>
+      </header>
+
+      <Dashboard />
     </main>
   );
 }
