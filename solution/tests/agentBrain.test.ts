@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
@@ -96,5 +96,38 @@ describe('AgentCofounderOrchestrator', () => {
              throw err;
         }
     }
+  });
+
+  it('should open circuit breaker after consecutive failures on external call', async () => {
+    const orchestrator = new AgentCofounderOrchestrator(prisma as any);
+
+    // Mock global fetch to always fail with a network error
+    const fetchSpy = vi.spyOn(global, 'fetch').mockImplementation(() => {
+        return Promise.reject(new Error('Simulated network failure'));
+    });
+
+    let networkErrorCount = 0;
+    let breakerErrorCount = 0;
+
+    for (let i = 0; i < 6; i++) {
+        try {
+            // Test callExternalLLM via type casting to bypass private modifier for testing
+            await (orchestrator as any).callExternalLLM('Test Title', 'Test Description');
+        } catch (error: any) {
+            if (error instanceof LlmNetworkError) {
+                if (error.message.includes('Circuit breaker is open')) {
+                    breakerErrorCount++;
+                } else {
+                    networkErrorCount++;
+                }
+            }
+        }
+    }
+
+    expect(fetchSpy).toHaveBeenCalled();
+    expect(networkErrorCount).toBeGreaterThan(0);
+    expect(breakerErrorCount).toBeGreaterThan(0);
+
+    fetchSpy.mockRestore();
   });
 });
