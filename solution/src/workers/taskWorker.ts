@@ -1,5 +1,5 @@
 import { Worker, Queue } from 'bullmq';
-import IORedis from 'ioredis';
+import { Redis } from 'ioredis';
 import { AgentCofounderOrchestrator } from '../orchestration/agentBrain.js';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
@@ -13,9 +13,9 @@ const prisma = new PrismaClient({ adapter });
 
 // Setup Redis connection for BullMQ
 const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-const connection = new IORedis(redisUrl, {
+const connection = new Redis(redisUrl, {
   maxRetriesPerRequest: null,
-  retryStrategy: (times) => {
+  retryStrategy: (times: number) => {
     // Only retry in non-test environments
     if (process.env.NODE_ENV === 'test') {
       return null;

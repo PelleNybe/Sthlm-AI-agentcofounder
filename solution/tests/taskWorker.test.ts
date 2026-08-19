@@ -4,7 +4,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 import { v4 as uuidv4 } from 'uuid';
 import { QueueEvents } from 'bullmq';
-import IORedis from 'ioredis';
+import { Redis } from 'ioredis';
 import { taskQueue, taskWorker } from '../src/workers/taskWorker.js';
 
 const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/postgres';
@@ -34,7 +34,7 @@ describe('BullMQ Task Worker', () => {
 
     // Check Redis
     try {
-        const connection = new IORedis(redisUrl, {
+        const connection = new Redis(redisUrl, {
             maxRetriesPerRequest: null,
             retryStrategy: () => null // don't retry in test if not available
         });
@@ -42,7 +42,7 @@ describe('BullMQ Task Worker', () => {
         isRedisAvailable = true;
         connection.disconnect();
 
-        const eventsConnection = new IORedis(redisUrl, { maxRetriesPerRequest: null });
+        const eventsConnection = new Redis(redisUrl, { maxRetriesPerRequest: null });
         queueEvents = new QueueEvents('agent-tasks', { connection: eventsConnection });
     } catch(e) {
         console.warn("Redis not reachable, skipping BullMQ test.");
