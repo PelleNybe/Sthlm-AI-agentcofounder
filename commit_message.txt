@@ -1,5 +1,5 @@
-🧪 [testing improvement] Add tests for CLI execution of validate-result.ts
+🧪 [testing improvement] Add test coverage for reclaimAppOwnedPort in port-owner.test.ts
 
-🎯 What: Added tests for the `main` CLI function in `validate-result.ts`
-📊 Coverage: Added tests to ensure valid files exit with 0 and log success, while invalid ones exit with 1 and log validation errors.
-✨ Result: Improved coverage for the script's entry point handling, making it safe against regressions when refactoring.
+Adds missing test cases to verify the port reclamation logic behavior.
+These tests simulate processes holding ports inside and outside
+the target directory to ensure correct SIGTERM/SIGKILL application.
