@@ -107,7 +107,7 @@ async function runInherited(command: string, args: string[], cwd: string): Promi
   });
 }
 
-function summarizeEventLine(line: string): void {
+export function summarizeEventLine(line: string): void {
   try {
     const event = JSON.parse(line) as Record<string, unknown>;
     if (event.type === "tool_execution_end") {

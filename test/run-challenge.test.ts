@@ -2,12 +2,12 @@ import { mkdtemp, mkdir, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   PI_DOCUMENTATION_HEADING,
   stripPiDocumentationBlock,
 } from "../solution/extensions/protected-paths.js";
-import { buildPiArguments, parseArguments, runPi, runRequiresFailureExit } from "../src/run-challenge.js";
+import { buildPiArguments, parseArguments, runPi, runRequiresFailureExit, summarizeEventLine } from "../src/run-challenge.js";
 
 const temporaryDirectories: string[] = [];
 
@@ -161,4 +161,55 @@ describe("Pi launch", () => {
     expect(result.exitCode).not.toBe(124);
     expect(await readFile(stderrFile, "utf8")).toContain("Unknown provider");
   }, 10_000);
+});
+
+describe("summarizeEventLine", () => {
+  it("ignores malformed JSON", async () => {
+    const { summarizeEventLine } = await import("../src/run-challenge.js");
+    expect(() => summarizeEventLine("{ invalid json")).not.toThrow();
+  });
+});
+
+describe("summarizeEventLine", () => {
+  it("ignores malformed JSON without throwing", () => {
+    // The console.log should not be called and it should not throw
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+    expect(() => {
+      summarizeEventLine("{ invalid json");
+    }).not.toThrow();
+
+    expect(consoleSpy).not.toHaveBeenCalled();
+    consoleSpy.mockRestore();
+  });
+
+  it("handles valid tool_execution_end events", () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+    summarizeEventLine(JSON.stringify({
+      type: "tool_execution_end",
+      toolName: "test_tool"
+    }));
+
+    expect(consoleSpy).toHaveBeenCalledWith("[pi] completed tool: test_tool");
+    consoleSpy.mockRestore();
+  });
+
+  it("handles valid message_end events with usage", () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+    summarizeEventLine(JSON.stringify({
+      type: "message_end",
+      message: {
+        role: "assistant",
+        usage: {
+          input: 100,
+          output: 50
+        }
+      }
+    }));
+
+    expect(consoleSpy).toHaveBeenCalledWith("[pi] model call completed: input=100 output=50");
+    consoleSpy.mockRestore();
+  });
 });
