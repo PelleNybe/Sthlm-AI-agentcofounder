@@ -256,6 +256,11 @@ async function main(): Promise<void> {
     readFile(path.join(outputDirectory, "AGENTS.md"), "utf8"),
   ]);
 
+  // Import tokenPruner dynamically for prompt optimization
+  const { compressPromptText } = await import("../solution/src/services/tokenPruner.js");
+  const optimizedSystemPrompt = compressPromptText(systemPrompt);
+  const optimizedPublicJourneys = compressPromptText(publicJourneys);
+
   const runId = new Date().toISOString().replaceAll(":", "-").replaceAll(".", "-");
   const artifactDirectory = path.join(REPOSITORY_ROOT, "artifacts", "runs", runId);
   await mkdir(path.join(artifactDirectory, "sessions"), { recursive: true });
@@ -265,7 +270,7 @@ async function main(): Promise<void> {
   const stderrFile = path.join(artifactDirectory, "pi.stderr.log");
   const appPortHadListenerBeforePi = await portHasListener(APP_PORT);
   const pi = await runPi(
-    buildPiArguments(idea, systemPrompt, publicJourneys, appContext, artifactDirectory),
+    buildPiArguments(idea, optimizedSystemPrompt, optimizedPublicJourneys, appContext, artifactDirectory),
     outputDirectory,
     eventFile,
     stderrFile,
@@ -278,7 +283,18 @@ async function main(): Promise<void> {
     else console.warn(message);
   }
 
-  const usage = collectUsageFromJsonLines(await readFile(eventFile, "utf8"));
+  const eventContent = await readFile(eventFile, "utf8");
+  const { generateCanonicalTraceLog } = await import("./usage.js");
+  const traceLogContent = generateCanonicalTraceLog(eventContent);
+
+  // Write trace.jsonl to artifact directory, root, and app workspace
+  await Promise.all([
+    writeFile(path.join(artifactDirectory, "trace.jsonl"), traceLogContent, "utf8"),
+    writeFile(path.join(REPOSITORY_ROOT, "trace.jsonl"), traceLogContent, "utf8"),
+    writeFile(path.join(outputDirectory, "trace.jsonl"), traceLogContent, "utf8"),
+  ]);
+
+  const usage = collectUsageFromJsonLines(eventContent);
   const partial = await readPartialResult(outputDirectory);
   const canVerifyApp = pi.exitCode === 0 && usage.model_calls > 0;
   const startCommand = rootStartCommand(REPOSITORY_ROOT, outputDirectory);
