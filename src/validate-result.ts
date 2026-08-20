@@ -1,25 +1,33 @@
-import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { Ajv, type ErrorObject } from "ajv";
+import { Ajv, type ErrorObject, type ValidateFunction } from "ajv";
 import type { RunResult } from "./types.js";
 
 const SOURCE_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(SOURCE_DIRECTORY, "..");
-const schema = JSON.parse(
-  readFileSync(path.join(REPOSITORY_ROOT, "contract-public", "result.schema.json"), "utf8"),
-) as object;
-const ajv = new Ajv({ allErrors: true, strict: true });
-const validateSchema = ajv.compile(schema);
+
+let validateSchema: ValidateFunction | undefined;
+
+async function getValidateSchema() {
+  if (!validateSchema) {
+    const schema = JSON.parse(
+      await readFile(path.join(REPOSITORY_ROOT, "contract-public", "result.schema.json"), "utf8"),
+    ) as object;
+    const ajv = new Ajv({ allErrors: true, strict: true });
+    validateSchema = ajv.compile(schema);
+  }
+  return validateSchema;
+}
 
 function sameNumber(actual: number, expected: number): boolean {
   return Math.abs(actual - expected) < 1e-9;
 }
 
 export async function validateResultObject(value: unknown): Promise<string[]> {
-  if (!validateSchema(value)) {
-    return (validateSchema.errors ?? []).map(
+  const validate = await getValidateSchema();
+  if (!validate(value)) {
+    return (validate.errors ?? []).map(
       (error: ErrorObject) => `${error.instancePath || "/"} ${error.message ?? "is invalid"}`,
     );
   }
