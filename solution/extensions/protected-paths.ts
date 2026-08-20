@@ -28,7 +28,8 @@ export default function protectedPaths(pi: ExtensionAPI) {
   const appRoot = process.cwd();
 
   pi.on("before_agent_start", async (event) => ({
-    systemPrompt: stripPiDocumentationBlock(event.systemPrompt),
+    systemPrompt: stripPiDocumentationBlock(event.systemPrompt) +
+      "\n\n## Qwen Model Function Calling Optimization:\nAlways output well-formed JSON arguments for tool calls. Ensure all file paths passed to write/edit tools are relative to the current working directory.",
   }));
 
   pi.on("tool_call", async (event, context) => {

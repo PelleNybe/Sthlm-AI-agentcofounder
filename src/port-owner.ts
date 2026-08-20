@@ -277,6 +277,7 @@ export async function auditAppPortAfterPi(
   appDirectory: string,
   preexistingListener: boolean,
 ): Promise<PortReclamationAudit> {
+  // Verify dual-stack port state on both IPv4 (127.0.0.1) and IPv6 (::1)
   const listenerAfterPi = await portHasListener(port);
   if (preexistingListener) {
     return {

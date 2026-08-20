@@ -10,6 +10,7 @@
   "scripts": {
     "challenge": "node --import tsx src/run-challenge.ts",
     "validate:result": "node --import tsx src/validate-result.ts",
+    "dashboard": "node --import tsx src/dashboard.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "app:test": "npm --prefix app-template test -- --passWithNoTests",
