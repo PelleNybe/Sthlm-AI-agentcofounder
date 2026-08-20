@@ -1,12 +1,9 @@
 import { cp, lstat, mkdir, readFile, rm, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-const MARKER = ".agent-cofounder-output";
+import { isInside } from "./fs-utils.js";
 
-function isInside(parent: string, candidate: string): boolean {
-  const relative = path.relative(parent, candidate);
-  return relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative);
-}
+const MARKER = ".agent-cofounder-output";
 
 export async function prepareOutput(
   repositoryRoot: string,
