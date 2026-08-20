@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { collectUsageFromJsonLines } from "../src/usage.js";
+import { collectUsageFromJsonLines, generateCanonicalTraceLog } from "../src/usage.js";
 
 describe("collectUsageFromJsonLines", () => {
   it("aggregates completed assistant messages without counting other events", () => {
@@ -141,5 +141,26 @@ describe("collectUsageFromJsonLines", () => {
       total_tokens: 0,
       call_log: [],
     });
+  });
+});
+
+describe("generateCanonicalTraceLog", () => {
+  it("parses tool execution end events and outputs canonical trace log", () => {
+    const content = [
+      JSON.stringify({ type: "agent_start" }),
+      JSON.stringify({ type: "tool_execution_end", toolName: "bash" }),
+      JSON.stringify({ type: "tool_execution_end", toolName: "edit_file" })
+    ].join("\n");
+    const log = generateCanonicalTraceLog(content);
+    expect(log).toContain('"action":"tool_bash"');
+    expect(log).toContain('"action":"tool_edit_file"');
+    expect(log).toContain('"files":1');
+    expect(log).toContain('"files":2');
+  });
+
+  it("gracefully ignores malformed JSON lines and still processes valid lines", () => {
+    const content = "invalid\n" + JSON.stringify({ type: "tool_execution_end", toolName: "test" });
+    const log = generateCanonicalTraceLog(content);
+    expect(log).toContain('"action":"tool_test"');
   });
 });
