@@ -191,7 +191,7 @@ async function waitForHttp(
   return false;
 }
 
-async function waitForPortToClose(port: number, timeoutMs: number): Promise<boolean> {
+export async function waitForPortToClose(port: number, timeoutMs: number): Promise<boolean> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     if (!(await portHasListener(port))) return true;

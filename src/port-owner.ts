@@ -3,7 +3,7 @@ import { readdir, readFile, readlink, realpath } from "node:fs/promises";
 import path from "node:path";
 import { signalProcessTree, usesDetachedProcessGroup } from "./process-tree.js";
 import type { PortReclamationAudit } from "./types.js";
-import { portHasListener } from "./verify-app.js";
+import { portHasListener, waitForPortToClose } from "./verify-app.js";
 
 const LSOF_TIMEOUT_MS = 2_000;
 
@@ -209,14 +209,6 @@ async function discoverAppOwnedListeners(port: number, appDirectory: string): Pr
   return { processIds: [], diagnostic: `Port-owner discovery is unsupported on ${process.platform}` };
 }
 
-async function waitForPortToClose(port: number, timeoutMs: number): Promise<boolean> {
-  const deadline = Date.now() + timeoutMs;
-  while (Date.now() < deadline) {
-    if (!(await portHasListener(port))) return true;
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
-  return false;
-}
 
 function signalProcesses(processIds: number[], signal: NodeJS.Signals): void {
   for (const processId of processIds) {
