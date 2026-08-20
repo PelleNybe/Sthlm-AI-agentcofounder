@@ -213,3 +213,10 @@ describe("summarizeEventLine", () => {
     consoleSpy.mockRestore();
   });
 });
+
+describe("summarizeEventLine error path", () => {
+  it("catches errors without throwing", async () => {
+    const { summarizeEventLine } = await import("../src/run-challenge.js");
+    expect(() => summarizeEventLine("{ invalid json")).not.toThrow();
+  });
+});
