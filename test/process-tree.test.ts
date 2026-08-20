@@ -6,18 +6,9 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { auditAppPortAfterPi, captureCommand, reclaimAppOwnedPort } from "../src/port-owner.js";
 import { signalProcessTree, terminateProcessTree, usesDetachedProcessGroup } from "../src/process-tree.js";
-import { portHasListener } from "../src/verify-app.js";
+import { portHasListener, waitForPortListener } from "../src/verify-app.js";
 
 const temporaryDirectories: string[] = [];
-
-async function waitForListener(port: number, expected: boolean): Promise<boolean> {
-  const deadline = Date.now() + 3_000;
-  while (Date.now() < deadline) {
-    if ((await portHasListener(port)) === expected) return true;
-    await new Promise((resolve) => setTimeout(resolve, 50));
-  }
-  return false;
-}
 
 async function getFreePort(): Promise<number> {
   const server = net.createServer();
@@ -94,14 +85,14 @@ describe("process-tree cleanup", () => {
     });
 
     try {
-      expect(await waitForListener(port, true)).toBe(true);
+      expect(await waitForPortListener(port, true, 3_000)).toBe(true);
       await terminateProcessTree(launcher, 100);
       expect(await portHasListener(port)).toBe(true);
 
       const audit = await auditAppPortAfterPi(port, directory, false);
       expect(audit).toMatchObject({ attempted: true, reclaimed: true });
       expect(audit.process_ids).not.toHaveLength(0);
-      expect(await waitForListener(port, false)).toBe(true);
+      expect(await waitForPortListener(port, false, 3_000)).toBe(true);
     } finally {
       signalProcessTree(launcher, "SIGKILL");
       try {
@@ -126,7 +117,7 @@ describe("process-tree cleanup", () => {
     );
 
     try {
-      expect(await waitForListener(port, true)).toBe(true);
+      expect(await waitForPortListener(port, true, 3_000)).toBe(true);
       const reclamation = await reclaimAppOwnedPort(port, appDirectory, 100);
       expect(reclamation).toMatchObject({ attempted: false, reclaimed: false, processIds: [] });
       expect(await portHasListener(port)).toBe(true);
@@ -138,7 +129,7 @@ describe("process-tree cleanup", () => {
           if ((error as NodeJS.ErrnoException).code !== "ESRCH") throw error;
         }
       }
-      await waitForListener(port, false);
+      await waitForPortListener(port, false, 3_000);
     }
   });
 
@@ -153,7 +144,7 @@ describe("process-tree cleanup", () => {
     );
 
     try {
-      expect(await waitForListener(port, true)).toBe(true);
+      expect(await waitForPortListener(port, true, 3_000)).toBe(true);
       const audit = await auditAppPortAfterPi(port, directory, true);
       expect(audit).toMatchObject({
         preexisting_listener: true,
@@ -171,7 +162,7 @@ describe("process-tree cleanup", () => {
           if ((error as NodeJS.ErrnoException).code !== "ESRCH") throw error;
         }
       }
-      await waitForListener(port, false);
+      await waitForPortListener(port, false, 3_000);
     }
   });
 });

@@ -192,10 +192,14 @@ async function waitForHttp(
   return false;
 }
 
-export async function waitForPortToClose(port: number, timeoutMs: number): Promise<boolean> {
+export async function waitForPortListener(
+  port: number,
+  expected: boolean,
+  timeoutMs: number,
+): Promise<boolean> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    if (!(await portHasListener(port))) return true;
+    if ((await portHasListener(port)) === expected) return true;
     await delay(100);
   }
   return false;
@@ -279,7 +283,7 @@ async function verifyDevelopmentServer(
     }
   }
 
-  const portClosed = await waitForPortToClose(port, 2_000);
+  const portClosed = await waitForPortListener(port, false, 2_000);
   await safeWriteLog(logPath, renderOutput(captured));
   return served && childClosed && portClosed;
 }
