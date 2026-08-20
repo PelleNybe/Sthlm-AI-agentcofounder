@@ -3,7 +3,7 @@ import { readdir, readFile, readlink, realpath } from "node:fs/promises";
 import path from "node:path";
 import { signalProcessTree, usesDetachedProcessGroup } from "./process-tree.js";
 import type { PortReclamationAudit } from "./types.js";
-import { portHasListener, waitForPortToClose } from "./verify-app.js";
+import { portHasListener, waitForPortListener } from "./verify-app.js";
 import { isInsideOrEqual } from "./fs-utils.js";
 
 const LSOF_TIMEOUT_MS = 2_000;
@@ -237,7 +237,7 @@ export async function reclaimAppOwnedPort(
   }
 
   signalProcesses(discovery.processIds, "SIGTERM");
-  if (await waitForPortToClose(port, gracePeriodMs)) {
+  if (await waitForPortListener(port, false, gracePeriodMs)) {
     return {
       attempted: true,
       reclaimed: true,
@@ -248,7 +248,7 @@ export async function reclaimAppOwnedPort(
 
   const remaining = await discoverAppOwnedListeners(port, appDirectory);
   signalProcesses(remaining.processIds, "SIGKILL");
-  const reclaimed = await waitForPortToClose(port, gracePeriodMs);
+  const reclaimed = await waitForPortListener(port, false, gracePeriodMs);
   return {
     attempted: true,
     reclaimed,
