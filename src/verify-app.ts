@@ -1,6 +1,7 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { readFile, writeFile } from "node:fs/promises";
 import net from "node:net";
+import { isInside } from "./fs-utils.js";
 import path from "node:path";
 import { signalProcessTree, usesDetachedProcessGroup } from "./process-tree.js";
 import type { AppVerification, TestRun } from "./types.js";
@@ -289,7 +290,7 @@ function testRun(command: string, journey: string, result: TestRun["result"]): T
 
 function boundedDisplayPath(displayRoot: string, target: string): string {
   const relative = path.relative(displayRoot, target);
-  if (relative === "" || relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+  if (!isInside(displayRoot, target)) {
     return path.basename(target);
   }
   return relative;
