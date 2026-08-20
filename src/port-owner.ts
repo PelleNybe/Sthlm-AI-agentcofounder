@@ -4,6 +4,7 @@ import path from "node:path";
 import { signalProcessTree, usesDetachedProcessGroup } from "./process-tree.js";
 import type { PortReclamationAudit } from "./types.js";
 import { portHasListener, waitForPortToClose } from "./verify-app.js";
+import { isInsideOrEqual } from "./fs-utils.js";
 
 const LSOF_TIMEOUT_MS = 2_000;
 
@@ -25,13 +26,7 @@ export interface CapturedCommand {
   timedOut: boolean;
 }
 
-function isInsideOrEqual(parent: string, candidate: string): boolean {
-  const relative = path.relative(parent, candidate);
-  return (
-    relative === "" ||
-    (relative !== ".." && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative))
-  );
-}
+
 
 async function listeningSocketInodes(port: number): Promise<Set<string>> {
   const inodes = new Set<string>();
