@@ -69,11 +69,11 @@ describe('Slack Notifier Worker', () => {
 
       expect(formatted.text).toContain('Launch Marketing Campaign');
       expect(formatted.blocks).toHaveLength(3);
-      expect(formatted.blocks[0].type).toBe('header');
-      expect(formatted.blocks[0].text.text).toContain('Launch Marketing Campaign');
-      expect(formatted.blocks[1].fields[0].text).toContain('123e4567-e89b-12d3-a456-426614174000');
-      expect(formatted.blocks[1].fields[1].text).toContain('COMPLETED');
-      expect(formatted.blocks[2].text.text).toContain('Successfully scheduled posts and tracked engagement.');
+      expect(formatted.blocks[0]!.type).toBe('header');
+      expect((formatted.blocks[0] as any).text.text).toContain('Launch Marketing Campaign');
+      expect((formatted.blocks[1] as any).fields[0].text).toContain('123e4567-e89b-12d3-a456-426614174000');
+      expect((formatted.blocks[1] as any).fields[1].text).toContain('COMPLETED');
+      expect((formatted.blocks[2] as any).text.text).toContain('Successfully scheduled posts and tracked engagement.');
     });
   });
 
@@ -99,7 +99,8 @@ describe('Slack Notifier Worker', () => {
       expect(result.status).toBe(200);
       expect(mockFetch).toHaveBeenCalledTimes(1);
 
-      const [url, options] = mockFetch.mock.calls[0];
+      expect(mockFetch.mock.calls[0]).toBeDefined();
+      const [url, options] = mockFetch.mock.calls[0]!;
       expect(url).toBe('https://hooks.slack.com/services/TEST/MOCK/WEBHOOK');
       expect(options?.method).toBe('POST');
       expect((options?.headers as Record<string, string>)['Content-Type']).toBe('application/json');
