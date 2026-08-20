@@ -124,7 +124,19 @@ describe("collectUsageFromJsonLines", () => {
   });
 
   it("returns zero totals when there are no completed model messages", () => {
-    expect(collectUsageFromJsonLines("{\"type\":\"agent_start\"}\n")).toMatchObject({
+    expect(collectUsageFromJsonLines('{"type":"agent_start"}\n')).toMatchObject(
+      {
+        model_calls: 0,
+        total_tokens: 0,
+        call_log: [],
+      },
+    );
+  });
+
+  it("gracefully ignores malformed JSON lines and returns empty usage", () => {
+    const invalidJson =
+      'this is not valid json\n{ "type": "agent_start" \n{ "malformed": true';
+    expect(collectUsageFromJsonLines(invalidJson)).toMatchObject({
       model_calls: 0,
       total_tokens: 0,
       call_log: [],
