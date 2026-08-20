@@ -130,9 +130,6 @@ export async function writeResult(
 }
 
 export function missingRequiredResultPaths(writtenPaths: string[], requiredPaths: string[]): string[] {
-  const written = new Set<string>();
-  for (const destination of writtenPaths) {
-    written.add(path.resolve(destination));
-  }
+  const written = new Set(writtenPaths.map((destination) => path.resolve(destination)));
   return requiredPaths.filter((destination) => !written.has(path.resolve(destination)));
 }
