@@ -212,11 +212,32 @@ Run a challenge:
 npm run challenge
 ```
 
+Inspect benchmark metrics and execution trace:
+
+```bash
+npm run dashboard
+```
+
 Validate the result:
 
 ```bash
 npm run validate:result -- output/app/result.json
 ```
+
+---
+
+## ⚡ 10 Supercharged Features (Hackathon Engine)
+
+1. **AST-Driven Token Pruner (`solution/src/services/tokenPruner.ts`)**: Code and context compression engine.
+2. **KV-Cache Static Header Alignment (`solution/system-prompt.md`)**: Prefixes prompt for provider KV-cache hits.
+3. **In-Flight Self-Repair Skill (`solution/skills/self-repair/SKILL.md`)**: Automated Vitest and TypeScript build error repair during generation.
+4. **Canonical `trace.jsonl` Exporter (`src/usage.ts`)**: Outputs step-by-step audit logs matching Stockholm AI benchmark specification.
+5. **3-Tier Domain Architecture Scaffolder (`solution/skills/mvp-builder/SKILL.md`)**: Enforces clean `domain/`, `storage/`, and `components/` boundaries.
+6. **Automated Fuzz & Edge-Case Test Synthesizer (`solution/skills/fuzz-test-synthesizer/SKILL.md`)**: Auto-generates resilience tests against empty states and corrupt storage.
+7. **Qwen Function Calling Optimization (`solution/extensions/protected-paths.ts`)**: Enforces well-formed JSON tool calling schemas.
+8. **Structured `idea_spec.json` Generator (`solution/system-prompt.md`)**: Formulates explicit target user, scope, and ambiguity resolutions.
+9. **Dual-Stack Port 3000 Reclamation Guard (`src/port-owner.ts`)**: Non-blocking IPv4/IPv6 process cleanup guard.
+10. **CLI Benchmark & Trace Dashboard (`npm run dashboard`)**: Interactive terminal visualization for model token costs and execution trace steps.
 
 ---
 
