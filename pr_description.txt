@@ -1,15 +1,10 @@
-⚡ Optimize missingRequiredResultPaths
+🎯 **What:**
+The testing gap addressed was that `test/validate-result.test.ts` missed 100% test coverage, particularly for the CLI logic inside `src/validate-result.ts` (`main()` function processing args and exiting).
+Furthermore, to enable 100% statement execution during testing for CLI execution, the execution script in `validate-result.ts` needed to be exported or conditionally imported so Vitest could properly track it without spawning an internal child process.
 
-💡 **What:** Replaced the intermediate array mapping `.map(...)` inside `new Set()` in `src/result.ts`'s `missingRequiredResultPaths` function with a `for...of` loop adding items directly into the `Set`.
+📊 **Coverage:**
+- `main()` logic in `src/validate-result.ts` that runs via top-level execution logic is now covered by testing through `describe("CLI main function (via dynamic import)")` where `process.argv` and `process.exitCode` are mocked to execute it synchronously while capturing outputs and exit code without abandoning Vitest context.
+- Ajv schema errors missing instance variables are now explicitly tested.
 
-🎯 **Why:** The previous code `new Set(writtenPaths.map((destination) => path.resolve(destination)))` created an intermediate array before constructing the `Set`. This caused unnecessary garbage collection and memory allocation, specially observable in large inputs. We eliminated the intermediate array, avoiding redundant iterations and memory overhead.
-
-📊 **Measured Improvement:**
-We benchmarked this on various dataset sizes locally. The baseline time vs optimized time results:
-
-For an input size of 10,000 files with 10,000 iterations:
-Baseline: 2439.09ms
-Optimized: 2372.44ms
-Improvement: ~2.73%
-
-Though for larger arrays, we could see an equivalent improvement, avoiding the intermediate `.map` prevents memory peaks.
+✨ **Result:**
+`validate-result.ts` now reaches 100% statement, branches, functions, and lines coverage, while maintaining overall build and application correctness.

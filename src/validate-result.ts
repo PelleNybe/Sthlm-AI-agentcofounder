@@ -55,7 +55,7 @@ export async function validateResultObject(value: unknown): Promise<string[]> {
   return errors;
 }
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   const target = process.argv[2] ?? path.join(REPOSITORY_ROOT, "output", "app", "result.json");
   const parsed: unknown = JSON.parse(await readFile(path.resolve(target), "utf8"));
   const errors = await validateResultObject(parsed);

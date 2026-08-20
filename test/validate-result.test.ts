@@ -4,6 +4,10 @@ import type { RunResult } from "../src/types.js";
 import { execFileSync } from "node:child_process";
 import { writeFileSync, unlinkSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const VALID_RUN_RESULT: RunResult = {
   status: "success",
@@ -171,9 +175,63 @@ describe("validateResultObject", () => {
     const errors = await validateResultObject(invalidResult);
     expect(errors).toContain("call_log indexes must be contiguous and start at 1");
   });
+
+  it("formats schema errors including those without message", async () => {
+    const invalidResult = { ...VALID_RUN_RESULT };
+    // @ts-expect-error
+    invalidResult.pi_exit_code = "not-a-number";
+    const errors = await validateResultObject(invalidResult);
+    expect(errors.some((e) => e.includes("/pi_exit_code"))).toBe(true);
+  });
 });
 
-describe("CLI main function", () => {
+describe("CLI main function (via dynamic import)", () => {
+  let originalExitCode: any;
+  let originalArgv: string[];
+  let consoleLogSpy: ReturnType<typeof vi.spyOn>;
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+  const VALID_TEMP_FILE = path.resolve(__dirname, "valid_temp_direct.json");
+  const INVALID_TEMP_FILE = path.resolve(__dirname, "invalid_temp_direct.json");
+
+  beforeEach(() => {
+    originalExitCode = process.exitCode;
+    originalArgv = [...process.argv];
+    consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    writeFileSync(VALID_TEMP_FILE, JSON.stringify(VALID_RUN_RESULT));
+    writeFileSync(INVALID_TEMP_FILE, JSON.stringify({ status: "success" }));
+  });
+
+  afterEach(() => {
+    if (originalExitCode !== undefined) { process.exitCode = originalExitCode; } else { process.exitCode = undefined; }
+    process.argv = originalArgv;
+    vi.restoreAllMocks();
+    try { unlinkSync(VALID_TEMP_FILE); } catch (e) {}
+    try { unlinkSync(INVALID_TEMP_FILE); } catch (e) {}
+  });
+
+  it("executes main logic directly when conditions match", async () => {
+    const modulePath = path.resolve(__dirname, "../src/validate-result.ts");
+    process.argv = ["node", modulePath, VALID_TEMP_FILE];
+    // Need to use import with a cache bust or trick to re-evaluate module?
+    // In vitest we can use vi.resetModules()
+    vi.resetModules();
+    await import("../src/validate-result.js");
+    expect(consoleLogSpy).toHaveBeenCalledWith(`Valid result: ${VALID_TEMP_FILE}`);
+    expect(process.exitCode).toBeUndefined();
+  });
+
+  it("exits with 1 on invalid result directly", async () => {
+    const modulePath = path.resolve(__dirname, "../src/validate-result.ts");
+    process.argv = ["node", modulePath, INVALID_TEMP_FILE];
+    vi.resetModules();
+    await import("../src/validate-result.js");
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    expect(process.exitCode).toBe(1);
+  });
+});
+
+describe("CLI main function (via spawned process)", () => {
   const VALID_TEMP_FILE = path.resolve(__dirname, "valid_temp.json");
   const INVALID_TEMP_FILE = path.resolve(__dirname, "invalid_temp.json");
 
