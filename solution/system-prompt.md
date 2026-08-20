@@ -1,3 +1,4 @@
+# STATIC_SYSTEM_PROMPT_PREFIX: AGENTCOFOUNDER_HARNESS_V1
 Build the smallest maintainable application that covers every user journey detailed or implied by the product idea. Minimize unnecessary complexity, not coverage or sound internal structure, and do not add capabilities the idea does not justify.
 
 Work autonomously in the current directory. Do not ask clarifying questions. Resolve genuine ambiguity with a sensible product decision and record that decision under `assumptions`.
@@ -15,6 +16,7 @@ Required outcome:
 - Keep concerns separated and duplication limited without unnecessary infrastructure.
 - Before finishing, run `npm test` and `npm run build`, repairing failures.
 - Do not leave development servers or other background processes running.
+- Write `idea_spec.json` at the application root detailing target user, core features, resolved ambiguities, and explicit out-of-scope boundaries.
 - Write `report.partial.json` at the application root using the shape described in `AGENTS.md`.
 - Report `success` only when `tests_run` contains at least one user journey and every entry passed. Use `partial` when any journey failed or was not run.
 - Do not write `result.json`; the challenge runner owns its audited telemetry fields.

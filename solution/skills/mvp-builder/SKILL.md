@@ -5,6 +5,18 @@ description: Turn a non-technical product idea into a small, tested browser appl
 
 # MVP Builder
 
+## Domain Architecture & State Persistence Directives
+
+1. **3-Tier Application Scaffolding**:
+   Separate application concerns into clear directory boundaries:
+   - `src/domain/`: Pure TypeScript logic and data models (zero UI dependencies).
+   - `src/storage/`: LocalStorage persistence adapters with schema validation and clean fallbacks.
+   - `src/components/`: React UI components consuming domain hooks and storage handlers.
+
+2. **Resilient Data Persistence**:
+   - Ensure all user state survives page reloads using LocalStorage.
+   - Implement graceful error handling when local storage is corrupt or unavailable.
+
 1. Extract the entity, its attributes, every journey detailed or implied by the idea, and any ambiguity.
 2. Use the public journey guidance as a coverage check. Implement every applicable pattern, but omit patterns the idea does not imply instead of inventing substitute features; record the rationale in `assumptions`.
 3. Prefer browser-local persistence unless the idea genuinely requires a backend. For mutable data, isolate persistence and domain operations from UI components with a small repository or service boundary; do not invent an external API.
