@@ -1,6 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi, afterEach, beforeEach } from "vitest";
 import { validateResultObject } from "../src/validate-result.js";
 import type { RunResult } from "../src/types.js";
+import { execFileSync } from "node:child_process";
+import { writeFileSync, unlinkSync } from "node:fs";
+import path from "node:path";
 
 const VALID_RUN_RESULT: RunResult = {
   status: "success",
@@ -167,5 +170,35 @@ describe("validateResultObject", () => {
     };
     const errors = await validateResultObject(invalidResult);
     expect(errors).toContain("call_log indexes must be contiguous and start at 1");
+  });
+});
+
+describe("CLI main function", () => {
+  const VALID_TEMP_FILE = path.resolve(__dirname, "valid_temp.json");
+  const INVALID_TEMP_FILE = path.resolve(__dirname, "invalid_temp.json");
+
+  beforeEach(() => {
+    writeFileSync(VALID_TEMP_FILE, JSON.stringify(VALID_RUN_RESULT));
+    writeFileSync(INVALID_TEMP_FILE, JSON.stringify({ status: "success" }));
+  });
+
+  afterEach(() => {
+    try { unlinkSync(VALID_TEMP_FILE); } catch (e) {}
+    try { unlinkSync(INVALID_TEMP_FILE); } catch (e) {}
+  });
+
+  it("exits with code 0 and logs success for valid JSON", () => {
+    const output = execFileSync("node", ["--import", "tsx", "src/validate-result.ts", VALID_TEMP_FILE], { encoding: "utf8" });
+    expect(output).toContain("Valid result:");
+  });
+
+  it("exits with code 1 and logs errors for invalid JSON", () => {
+    try {
+      execFileSync("node", ["--import", "tsx", "src/validate-result.ts", INVALID_TEMP_FILE], { encoding: "utf8" });
+      expect.fail("Should have thrown error");
+    } catch (e: any) {
+      expect(e.status).toBe(1);
+      expect(e.stderr).toContain("must have required property");
+    }
   });
 });
