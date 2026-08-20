@@ -164,13 +164,11 @@ describe("Pi launch", () => {
 });
 
 describe("summarizeEventLine", () => {
-  it("ignores malformed JSON", async () => {
-    const { summarizeEventLine } = await import("../src/run-challenge.js");
+  it("catches errors without throwing", () => {
+    // summarizeEventLine parses JSON and wraps it in a try...catch block
     expect(() => summarizeEventLine("{ invalid json")).not.toThrow();
   });
-});
 
-describe("summarizeEventLine", () => {
   it("ignores malformed JSON without throwing", () => {
     // The console.log should not be called and it should not throw
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
@@ -211,12 +209,5 @@ describe("summarizeEventLine", () => {
 
     expect(consoleSpy).toHaveBeenCalledWith("[pi] model call completed: input=100 output=50");
     consoleSpy.mockRestore();
-  });
-});
-
-describe("summarizeEventLine error path", () => {
-  it("catches errors without throwing", async () => {
-    const { summarizeEventLine } = await import("../src/run-challenge.js");
-    expect(() => summarizeEventLine("{ invalid json")).not.toThrow();
   });
 });
