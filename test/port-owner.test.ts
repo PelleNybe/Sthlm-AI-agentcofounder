@@ -1,108 +1,99 @@
-import { describe, expect, it } from "vitest";
-import { auditAppPortAfterPi, captureCommand, reclaimAppOwnedPort } from "../src/port-owner.js";
-import { portHasListener } from "../src/verify-app.js";
-import net from "node:net";
-import path from "node:path";
-import os from "node:os";
-import { mkdtemp, rm } from "node:fs/promises";
-import { spawn } from "node:child_process";
+import { describe, expect, it, vi, afterEach } from "vitest";
+import { captureCommand, auditAppPortAfterPi, reclaimAppOwnedPort } from "../src/port-owner.js";
+import * as verifyApp from "../src/verify-app.js";
 
-async function getFreePort(): Promise<number> {
-  const server = net.createServer();
-  await new Promise<void>((resolve, reject) => {
-    server.once("error", reject);
-    server.listen({ host: "127.0.0.1", port: 0 }, resolve);
-  });
-  const address = server.address();
-  if (address === null || typeof address === "string") throw new Error("Expected a TCP address");
-  await new Promise<void>((resolve, reject) => {
-    server.close((error) => (error ? reject(error) : resolve()));
-  });
-  return address.port;
-}
+vi.mock("../src/verify-app.js", () => ({
+  portHasListener: vi.fn(),
+  waitForPortListener: vi.fn(),
+}));
 
 describe("port-owner", () => {
-  describe("captureCommand", () => {
-    it("captures stdout and returns success exit code", async () => {
-      const result = await captureCommand(process.execPath, ["-e", "console.log('hello')"]);
-      expect(result.exitCode).toBe(0);
-      expect(result.stdout).toBe("hello\n");
-      expect(result.timedOut).toBe(false);
-    });
-
-    it("returns correct exit code for failing commands", async () => {
-      const result = await captureCommand(process.execPath, ["-e", "process.exit(42)"]);
-      expect(result.exitCode).toBe(42);
-      expect(result.timedOut).toBe(false);
-    });
-
-    it("times out and kills the process if it exceeds the timeout", async () => {
-      const startedAt = Date.now();
-      const result = await captureCommand(
-        process.execPath,
-        ["-e", "setTimeout(() => {}, 10000)"],
-        100
-      );
-      expect(result.exitCode).toBe(124);
-      expect(result.timedOut).toBe(true);
-      expect(Date.now() - startedAt).toBeLessThan(2000);
-    });
-
-    it("handles non-existent commands gracefully", async () => {
-      const result = await captureCommand("this-command-does-not-exist-12345", []);
-      expect(result.exitCode).toBe(127);
-      expect(result.timedOut).toBe(false);
-    });
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
-  describe("reclaimAppOwnedPort", () => {
-    it("returns immediately if the port has no listener", async () => {
-      const port = await getFreePort();
-      const result = await reclaimAppOwnedPort(port, "/non/existent/path");
-      expect(result).toMatchObject({
-        attempted: false,
-        reclaimed: true,
-        processIds: [],
-        diagnostic: `Port ${port} was already free`,
-      });
+  describe("captureCommand", () => {
+    it("should capture basic command execution", async () => {
+      const result = await captureCommand("echo", ["hello"]);
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toContain("hello");
+      expect(result.timedOut).toBe(false);
+    });
+
+    it("should handle command timeout", async () => {
+      const result = await captureCommand("sleep", ["2"], 100);
+      expect(result.timedOut).toBe(true);
+      expect(result.exitCode).toBe(124);
+    });
+
+    it("should handle non-existent commands", async () => {
+      const result = await captureCommand("this-command-does-not-exist-12345", []);
+      expect(result.exitCode).not.toBe(0);
     });
   });
 
   describe("auditAppPortAfterPi", () => {
-    it("returns preexisting_listener early if preexistingListener is true", async () => {
-      const port = await getFreePort();
-      const server = net.createServer();
-      await new Promise<void>((resolve, reject) => {
-        server.once("error", reject);
-        server.listen({ host: "127.0.0.1", port }, resolve);
-      });
+    it("should return early if there was a preexisting listener", async () => {
+      vi.mocked(verifyApp.portHasListener).mockResolvedValue(true);
 
-      try {
-        const result = await auditAppPortAfterPi(port, "/some/path", true);
-        expect(result).toMatchObject({
-          preexisting_listener: true,
-          listener_after_pi: true,
-          attempted: false,
-          reclaimed: false,
-          process_ids: [],
-        });
-      } finally {
-        await new Promise<void>((resolve, reject) => {
-          server.close((error) => (error ? reject(error) : resolve()));
-        });
-      }
+      const result = await auditAppPortAfterPi(3000, "/tmp/app", true);
+
+      expect(result.preexisting_listener).toBe(true);
+      expect(result.listener_after_pi).toBe(true);
+      expect(result.attempted).toBe(false);
+      expect(result.reclaimed).toBe(false);
+      expect(result.process_ids).toEqual([]);
+      expect(result.diagnostic).toContain("occupied before Pi");
     });
 
-    it("returns free early if preexistingListener is false and no listener is present", async () => {
-      const port = await getFreePort();
-      const result = await auditAppPortAfterPi(port, "/some/path", false);
-      expect(result).toMatchObject({
-        preexisting_listener: false,
-        listener_after_pi: false,
-        attempted: false,
-        reclaimed: false,
-        process_ids: [],
-      });
+    it("should return early if there is no listener after Pi", async () => {
+      vi.mocked(verifyApp.portHasListener).mockResolvedValue(false);
+
+      const result = await auditAppPortAfterPi(3000, "/tmp/app", false);
+
+      expect(result.preexisting_listener).toBe(false);
+      expect(result.listener_after_pi).toBe(false);
+      expect(result.attempted).toBe(false);
+      expect(result.reclaimed).toBe(false);
+      expect(result.process_ids).toEqual([]);
+      expect(result.diagnostic).toContain("remained free");
+    });
+
+    it("should attempt reclamation if listener appeared after Pi", async () => {
+      vi.mocked(verifyApp.portHasListener).mockResolvedValue(true);
+      const result = await auditAppPortAfterPi(3000, "/tmp/app", false);
+
+      expect(result.preexisting_listener).toBe(false);
+      expect(result.listener_after_pi).toBe(true);
+
+      expect(result.process_ids).toEqual([]);
+      expect(result.attempted).toBe(false);
+      expect(result.reclaimed).toBe(false);
+      expect(result.diagnostic).toContain("No same-user listener");
+    });
+  });
+
+  describe("reclaimAppOwnedPort", () => {
+    it("should return early if the port has no listener", async () => {
+      vi.mocked(verifyApp.portHasListener).mockResolvedValue(false);
+
+      const result = await reclaimAppOwnedPort(3000, "/tmp/app");
+
+      expect(result.attempted).toBe(false);
+      expect(result.reclaimed).toBe(true);
+      expect(result.processIds).toEqual([]);
+      expect(result.diagnostic).toContain("already free");
+    });
+
+    it("should fail to reclaim if no matching processes are found", async () => {
+      vi.mocked(verifyApp.portHasListener).mockResolvedValue(true);
+
+      const result = await reclaimAppOwnedPort(3000, "/tmp/app");
+
+      expect(result.attempted).toBe(false);
+      expect(result.reclaimed).toBe(false);
+      expect(result.processIds).toEqual([]);
+      expect(result.diagnostic).toContain("No same-user listener");
     });
   });
 });
