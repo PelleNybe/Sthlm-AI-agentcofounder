@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { prepareOutput } from "./prepare-output.js";
 import { auditAppPortAfterPi } from "./port-owner.js";
-import { signalProcessTree, terminateProcessTree, usesDetachedProcessGroup } from "./process-tree.js";
+import { signalProcessTree, terminateProcessTree, usesDetachedProcessGroup, commandName } from "./process-tree.js";
 import {
   composeResult,
   missingRequiredResultPaths,
@@ -95,9 +95,6 @@ export function parseArguments(argv: string[]): Arguments {
   return parsed;
 }
 
-function commandName(name: string): string {
-  return process.platform === "win32" ? `${name}.cmd` : name;
-}
 
 async function runInherited(command: string, args: string[], cwd: string): Promise<number> {
   return await new Promise<number>((resolve, reject) => {

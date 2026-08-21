@@ -3,7 +3,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import net from "node:net";
 import { isInside } from "./fs-utils.js";
 import path from "node:path";
-import { signalProcessTree, usesDetachedProcessGroup } from "./process-tree.js";
+import { signalProcessTree, usesDetachedProcessGroup, commandName } from "./process-tree.js";
 import type { AppVerification, TestRun } from "./types.js";
 
 const MAX_LOG_BYTES = 5 * 1024 * 1024;
@@ -37,9 +37,6 @@ interface CapturedOutput {
   truncated: boolean;
 }
 
-function commandName(name: string): string {
-  return process.platform === "win32" ? `${name}.cmd` : name;
-}
 
 function delay(milliseconds: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));

@@ -29,3 +29,7 @@ export async function terminateProcessTree(child: ChildProcess, gracePeriodMs = 
   await new Promise((resolve) => setTimeout(resolve, gracePeriodMs));
   signalProcessTree(child, "SIGKILL");
 }
+
+export function commandName(name: string): string {
+  return process.platform === "win32" ? `${name}.cmd` : name;
+}
