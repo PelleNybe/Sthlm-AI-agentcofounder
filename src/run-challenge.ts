@@ -214,6 +214,12 @@ export function buildPiArguments(
     path.join(REPOSITORY_ROOT, "solution", "extensions", "protected-paths.ts"),
     "--skill",
     path.join(REPOSITORY_ROOT, "solution", "skills", "mvp-builder"),
+    "--skill",
+    path.join(REPOSITORY_ROOT, "solution", "skills", "self-repair"),
+    "--skill",
+    path.join(REPOSITORY_ROOT, "solution", "skills", "domain-architecture-scaffolder"),
+    "--skill",
+    path.join(REPOSITORY_ROOT, "solution", "skills", "fuzz-test-synthesizer"),
   ];
   if (process.env.CHALLENGE_PROVIDER) args.push("--provider", process.env.CHALLENGE_PROVIDER);
   if (process.env.CHALLENGE_MODEL) args.push("--model", process.env.CHALLENGE_MODEL);
