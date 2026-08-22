@@ -8,12 +8,12 @@ export function pruneTypeScriptContext(sourceCode: string): string {
     return '';
   }
 
-  // The typescript module in solution appears to be a stub or fake version (7.0.2).
-  // Thus we will use regex to accomplish the pruning as requested by the original code,
-  // but optimized to match the HACKATHON_FEATURES blueprint behavior.
+  // Use regex to accomplish the pruning as requested by the original code,
+  // optimized to match the HACKATHON_FEATURES blueprint behavior and remove excess empty lines.
   return sourceCode
-    .replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '')
-    .replace(/^\s*[\r\n]/gm, '')
+    .replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '') // Strip block and line comments
+    .replace(/^\s*[\r\n]/gm, '') // Remove empty lines
+    .replace(/\n{2,}/g, '\n') // Collapse multiple newlines
     .trim();
 }
 

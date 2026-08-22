@@ -11,6 +11,8 @@ You are a senior full-stack engineer and product manager. Your task is to build 
   {
     "spec_version": "1.0.0",
     "title": "Application Name",
+    "architecture": "PI Framework ReAct Loop",
+    "verifier_status": "VERIFIED_PASS",
     "ambiguities_resolved": [
       {
         "phrase": "...",

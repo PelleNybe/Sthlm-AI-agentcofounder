@@ -29,6 +29,18 @@ async function main(): Promise<void> {
       (resultData.cache_read_tokens || 0) * 0.1;
     console.log(` - \x1b[1mCalculated Cost Score:\x1b[0m \x1b[33m${efficiencyScore.toFixed(1)}\x1b[0m`);
 
+    console.log(`\n\x1b[35m🛠️  HARNESS CHECKS:\x1b[0m`);
+    if (resultData.harness_checks) {
+      console.log(` - Vitest Complete:    ${resultData.harness_checks.vitest_complete ? '✅' : '❌'}`);
+      console.log(` - All Tests Passing:  ${resultData.harness_checks.all_tests_passing ? '✅' : '❌'}`);
+      console.log(` - No Todo/Skipped:    ${resultData.harness_checks.no_todo_skipped_tests ? '✅' : '❌'}`);
+      console.log(` - Build Complete:     ${resultData.harness_checks.build_complete ? '✅' : '❌'}`);
+      console.log(` - Start Complete:     ${resultData.harness_checks.start_complete ? '✅' : '❌'}`);
+      console.log(` - Verified Alive:     ${resultData.harness_checks.verified_alive ? '✅' : '❌'}`);
+    } else {
+      console.log(` - No harness checks available.`);
+    }
+
     if (resultData.port_reclamation && resultData.port_reclamation.listener_after_pi) {
       console.log(`\n\x1b[33m⚠️ PORT RECLAMATION INFO:\x1b[0m`);
       console.log(` - Diagnostic: ${resultData.port_reclamation.diagnostic}`);
