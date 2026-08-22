@@ -8,12 +8,13 @@ export function pruneTypeScriptContext(sourceCode: string): string {
     return '';
   }
 
+  // The typescript module in solution appears to be a stub or fake version (7.0.2).
+  // Thus we will use regex to accomplish the pruning as requested by the original code,
+  // but optimized to match the HACKATHON_FEATURES blueprint behavior.
   return sourceCode
     .replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '')
-    .split('\n')
-    .map((line: string) => line.trimEnd())
-    .filter((line: string) => line.trim() !== '')
-    .join('\n');
+    .replace(/^\s*[\r\n]/gm, '')
+    .trim();
 }
 
 /**
