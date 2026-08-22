@@ -216,6 +216,8 @@ export function buildPiArguments(
     path.join(REPOSITORY_ROOT, "solution", "skills", "mvp-builder"),
     "--skill",
     path.join(REPOSITORY_ROOT, "solution", "skills", "self-repair"),
+    "--extension",
+    path.join(REPOSITORY_ROOT, "solution", "skills", "self-repair", "index.ts"),
     "--skill",
     path.join(REPOSITORY_ROOT, "solution", "skills", "domain-architecture-scaffolder"),
     "--skill",
