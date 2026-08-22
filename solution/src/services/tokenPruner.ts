@@ -12,8 +12,8 @@ export function pruneTypeScriptContext(sourceCode: string): string {
   // Thus we will use regex to accomplish the pruning as requested by the original code,
   // but optimized to match the HACKATHON_FEATURES blueprint behavior.
   return sourceCode
-    .replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '')
-    .replace(/^\s*[\r\n]/gm, '')
+    .replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '') // Strip block and line comments
+    .replace(/^\s*[\r\n]/gm, '') // Remove empty lines
     .trim();
 }
 
