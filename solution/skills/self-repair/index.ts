@@ -6,11 +6,24 @@ const execAsync = promisify(exec);
 
 export async function executeSelfRepairLoop(workspaceDir: string): Promise<{ passed: boolean; output: string }> {
   try {
-    const { stdout: testOut, stderr: testErr } = await execAsync("npm run test", { cwd: workspaceDir });
-    const { stdout: buildOut, stderr: buildErr } = await execAsync("npm run build", { cwd: workspaceDir });
+    let output = "";
+    try {
+      const { stdout: testOut, stderr: testErr } = await execAsync("npm run test", { cwd: workspaceDir });
+      output += testOut + "\n" + testErr + "\n";
+    } catch (e: any) {
+      return { passed: false, output: `Test failed:\n${e.stdout || ""}\n${e.stderr || ""}\n${e.message || ""}` };
+    }
+
+    try {
+      const { stdout: buildOut, stderr: buildErr } = await execAsync("npm run build", { cwd: workspaceDir });
+      output += buildOut + "\n" + buildErr + "\n";
+    } catch (e: any) {
+      return { passed: false, output: `Build failed:\n${e.stdout || ""}\n${e.stderr || ""}\n${e.message || ""}` };
+    }
+
     return { passed: true, output: "Tests and build passed successfully." };
   } catch (error: any) {
-    return { passed: false, output: (error.stdout || "") + "\n" + (error.stderr || "") };
+    return { passed: false, output: (error.stdout || "") + "\n" + (error.stderr || "") + "\n" + (error.message || "") };
   }
 }
 
