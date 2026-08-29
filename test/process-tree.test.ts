@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { auditAppPortAfterPi, captureCommand, reclaimAppOwnedPort } from "../src/port-owner.js";
-import { signalProcessTree, terminateProcessTree, usesDetachedProcessGroup } from "../src/process-tree.js";
+import { signalProcessTree, terminateProcessTree, usesDetachedProcessGroup, commandName } from "../src/process-tree.js";
 import { portHasListener, waitForPortListener } from "../src/verify-app.js";
 
 const temporaryDirectories: string[] = [];
@@ -164,5 +164,25 @@ describe("process-tree cleanup", () => {
       }
       await waitForPortListener(port, false, 3_000);
     }
+  });
+});
+
+describe("commandName", () => {
+  const originalPlatform = process.platform;
+
+  afterEach(() => {
+    Object.defineProperty(process, "platform", { value: originalPlatform });
+  });
+
+  it("appends .cmd on win32 platform", () => {
+    Object.defineProperty(process, "platform", { value: "win32" });
+    expect(commandName("npm")).toBe("npm.cmd");
+    expect(commandName("git")).toBe("git.cmd");
+  });
+
+  it("returns unmodified name on non-win32 platform", () => {
+    Object.defineProperty(process, "platform", { value: "linux" });
+    expect(commandName("npm")).toBe("npm");
+    expect(commandName("git")).toBe("git");
   });
 });
