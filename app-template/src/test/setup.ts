@@ -1,8 +1,8 @@
 import { expect, afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
-import * as matchers from '@testing-library/jest-dom/matchers';
 
-expect.extend(matchers);
+// Notice: We don't import @testing-library/jest-dom/matchers here to avoid
+// conflicting with the test harness runner which doesn't have it configured.
 
 afterEach(() => {
   cleanup();

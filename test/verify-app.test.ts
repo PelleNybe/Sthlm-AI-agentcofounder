@@ -76,7 +76,7 @@ async function createTestApp(testSource?: string): Promise<{ appDirectory: strin
       "    const user = userEvent.setup();",
       "    render(<Smoke />);",
       '    await user.click(screen.getByRole("button", { name: "Count 0" }));',
-      '    expect(screen.getByRole("button", { name: "Count 1" })).toHaveTextContent("Count 1");',
+      '    expect(screen.getByRole("button", { name: "Count 1" })).toBeDefined();',
       "  });",
       "});",
       "",
