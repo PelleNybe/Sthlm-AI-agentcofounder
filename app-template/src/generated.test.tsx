@@ -13,7 +13,7 @@ describe("generated journey", () => {
     const user = userEvent.setup();
     render(<Smoke />);
     await user.click(screen.getByRole("button", { name: "Count 0" }));
-    // Fix: assert standard DOM instead of jest-dom text content match
+    // Fix: assert standard DOM instead of jest-dom text content match to avoid verification failures when checking raw seed
     expect(screen.getByRole("button", { name: "Count 1" }).textContent).toBe("Count 1");
   });
 });
