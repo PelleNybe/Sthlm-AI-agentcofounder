@@ -7,23 +7,32 @@ const execAsync = promisify(exec);
 export async function executeSelfRepairLoop(workspaceDir: string): Promise<{ passed: boolean; output: string }> {
   try {
     let output = "";
+
+    // Check tests
     try {
       const { stdout: testOut, stderr: testErr } = await execAsync("npm run test", { cwd: workspaceDir });
       output += testOut + "\n" + testErr + "\n";
     } catch (e: any) {
-      return { passed: false, output: `Test failed:\n${e.stdout || ""}\n${e.stderr || ""}\n${e.message || ""}` };
+      const errOut = (e.stdout || "") + "\n" + (e.stderr || "") + "\n" + (e.message || "");
+      // Prune long stack traces slightly to fit context limits nicely, but preserve vitest error lines
+      const cleanErr = errOut.length > 3000 ? errOut.slice(errOut.length - 3000) : errOut;
+      return { passed: false, output: `Test failed:\n${cleanErr}` };
     }
 
+    // Check build
     try {
       const { stdout: buildOut, stderr: buildErr } = await execAsync("npm run build", { cwd: workspaceDir });
       output += buildOut + "\n" + buildErr + "\n";
     } catch (e: any) {
-      return { passed: false, output: `Build failed:\n${e.stdout || ""}\n${e.stderr || ""}\n${e.message || ""}` };
+      const errOut = (e.stdout || "") + "\n" + (e.stderr || "") + "\n" + (e.message || "");
+      const cleanErr = errOut.length > 3000 ? errOut.slice(errOut.length - 3000) : errOut;
+      return { passed: false, output: `Build failed (TypeScript/Vite compilation errors):\n${cleanErr}` };
     }
 
     return { passed: true, output: "Tests and build passed successfully." };
   } catch (error: any) {
-    return { passed: false, output: (error.stdout || "") + "\n" + (error.stderr || "") + "\n" + (error.message || "") };
+    const errOut = (error.stdout || "") + "\n" + (error.stderr || "") + "\n" + (error.message || "");
+    return { passed: false, output: `Unexpected verification loop error:\n${errOut}` };
   }
 }
 
@@ -47,7 +56,7 @@ export default function selfRepairSkill(pi: ExtensionAPI) {
             }
             return {
               block: true,
-              reason: `Self-repair loop activated because tests or build failed.\n\nError Output:\n${output}\n\nPlease fix the code so tests and build pass before writing report.partial.json.`
+              reason: `Self-repair loop activated because the application's tests or build verification failed.\n\nError Output:\n${output}\n\nDo not write \`report.partial.json\` yet. You must first fix the code causing these errors so \`npm run test\` and \`npm run build\` pass.`
             };
           } else {
             if (context.hasUI) {
