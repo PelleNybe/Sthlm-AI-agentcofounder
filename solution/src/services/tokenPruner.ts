@@ -8,11 +8,12 @@ export function pruneTypeScriptContext(sourceCode: string): string {
     return '';
   }
 
-  // Uses regex to prune the typescript module as per HACKATHON_FEATURES blueprint behavior.
+  // Use regex to accomplish the pruning as requested by the original code,
+  // optimized to match the HACKATHON_FEATURES blueprint behavior and remove excess empty lines.
   return sourceCode
     .replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '') // Strip block and line comments
     .replace(/^\s*[\r\n]/gm, '') // Remove empty lines
-    .replace(/^[ \t]+/gm, '') // Remove leading spaces on lines (basic minification)
+    .replace(/\n{2,}/g, '\n') // Collapse multiple newlines
     .trim();
 }
 
