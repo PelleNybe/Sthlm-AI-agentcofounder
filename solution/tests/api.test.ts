@@ -6,6 +6,7 @@ import { Redis } from 'ioredis';
 
 describe('API Endpoints E2E', () => {
   let userId: string;
+  let anotherUserId: string;
   let isDbAvailable = false;
   let isRedisAvailable = false;
 
@@ -52,6 +53,14 @@ describe('API Endpoints E2E', () => {
         }
         });
         userId = user.id;
+
+        const anotherUser = await prisma.user.create({
+        data: {
+            email: 'test_api_2@example.com',
+            name: 'Test API User 2'
+        }
+        });
+        anotherUserId = anotherUser.id;
     } catch (e) {
         console.warn('Could not reset db');
     }
@@ -105,6 +114,7 @@ describe('API Endpoints E2E', () => {
 
       const response = await request(app)
         .post('/api/tasks')
+        .set('Authorization', `Bearer ${userId}`)
         .send(payload);
 
       expect(response.status).toBe(201);
@@ -125,11 +135,45 @@ describe('API Endpoints E2E', () => {
       expect(jobAdded).toBeDefined();
     });
 
+    it('should fail with 401 when missing Authorization header', async () => {
+      if (!isDbAvailable) { expect(true).toBe(true); return; }
+      const payload = {
+        title: 'New Analysis Job',
+        description: 'Please analyze this',
+        userId: userId
+      };
+
+      const response = await request(app)
+        .post('/api/tasks')
+        .send(payload);
+
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBe('Unauthorized');
+    });
+
+    it('should fail with 403 when creating a task for another user', async () => {
+      if (!isDbAvailable) { expect(true).toBe(true); return; }
+      const payload = {
+        title: 'New Analysis Job',
+        description: 'Please analyze this',
+        userId: anotherUserId // Attempting to create for anotherUserId
+      };
+
+      const response = await request(app)
+        .post('/api/tasks')
+        .set('Authorization', `Bearer ${userId}`) // but authenticated as userId
+        .send(payload);
+
+      expect(response.status).toBe(403);
+      expect(response.body.error).toBe('Forbidden');
+    });
+
     it('should fail with 400 when missing required fields', async () => {
       if (!isDbAvailable) { expect(true).toBe(true); return; }
       const response = await request(app)
         .post('/api/tasks')
-        .send({ description: 'No title' });
+        .set('Authorization', `Bearer ${userId}`)
+        .send({ description: 'No title', userId: userId });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('Validation Error');

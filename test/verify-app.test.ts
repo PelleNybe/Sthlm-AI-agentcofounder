@@ -4,7 +4,7 @@ import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { portHasListener, verifyGeneratedApp } from "../src/verify-app.js";
+import { portHasListener, unavailableAppVerification, verifyGeneratedApp } from "../src/verify-app.js";
 
 const temporaryDirectories: string[] = [];
 const defaultPortOccupied = await portHasListener(3000);
@@ -76,7 +76,7 @@ async function createTestApp(testSource?: string): Promise<{ appDirectory: strin
       "    const user = userEvent.setup();",
       "    render(<Smoke />);",
       '    await user.click(screen.getByRole("button", { name: "Count 0" }));',
-      '    expect(screen.getByRole("button", { name: "Count 1" })).toHaveTextContent("Count 1");',
+      '    expect(screen.getByRole("button", { name: "Count 1" })).toBeDefined();',
       "  });",
       "});",
       "",
@@ -93,6 +93,18 @@ afterEach(async () => {
 });
 
 describe("app verification", () => {
+  describe("unavailableAppVerification", () => {
+    it("returns a failed verification object containing the provided reason", () => {
+      const result = unavailableAppVerification("Simulated test failure");
+      expect(result.passed).toBe(false);
+      expect(result.checks).toEqual([
+        { command: "vitest run", journey: "App tests were not run: Simulated test failure", result: "failed" },
+        { command: "npm run build", journey: "Production build was not run: Simulated test failure", result: "failed" },
+        { command: "npm run dev", journey: "HTTP startup probe was not run: Simulated test failure", result: "failed" },
+      ]);
+    });
+  });
+
   it("detects a listener bound to the wildcard address", async () => {
     const server = net.createServer((socket) => socket.end());
     await new Promise<void>((resolve, reject) => {

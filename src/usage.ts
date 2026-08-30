@@ -81,7 +81,7 @@ function callFromEvent(event: unknown, index: number): CallLogEntry | undefined 
   return undefined;
 }
 
-export interface TraceStepEntry {
+interface TraceStepEntry {
   step: number;
   agent: "planner" | "coder" | "verifier";
   action: string;

@@ -21,6 +21,37 @@ export const prisma = new PrismaClient({ adapter });
 export const app = express();
 app.use(express.json());
 
+// Auth middleware
+export const requireAuth = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    res.status(401).json({ error: 'Unauthorized', details: 'Missing or invalid Authorization header' });
+    return;
+  }
+
+  const userId = authHeader.split(' ')[1];
+
+  if (!userId) {
+    res.status(401).json({ error: 'Unauthorized', details: 'Missing userId in token' });
+    return;
+  }
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      res.status(401).json({ error: 'Unauthorized', details: 'Invalid user' });
+      return;
+    }
+
+    // Attach user to request for downstream handlers
+    (req as any).user = user;
+    next();
+  } catch (error) {
+    console.error('Auth error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 // Fetch historical agent tasks
 app.get('/api/tasks', async (req, res) => {
   const tasks = await prisma.agentTask.findMany({
@@ -31,8 +62,14 @@ app.get('/api/tasks', async (req, res) => {
 });
 
 // Trigger a new analysis job
-app.post('/api/tasks', async (req, res) => {
+app.post('/api/tasks', requireAuth, async (req, res) => {
   const input = CreateTaskInputSchema.parse(req.body);
+
+  const authUserId = (req as any).user.id;
+  if (input.userId !== authUserId) {
+    res.status(403).json({ error: 'Forbidden', details: 'Cannot create a task for another user' });
+    return;
+  }
 
   const newTask = await prisma.agentTask.create({
     data: {
