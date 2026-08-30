@@ -42,24 +42,6 @@ export function generateBoundaryNumbers(): number[] {
     0.1 + 0.2 // Float precision boundary
   ];
 }
-
-export function generateLongString(length = 10000): string {
-  return 'A'.repeat(length);
-}
-
-export function generateWhitespaceString(length = 50): string {
-  return ' '.repeat(length);
-}
-
-export function injectInvalidTypes(key: string): void {
-  localStorage.setItem(key, '12345'); // Expected object, got number
-}
-
-export function simulateRapidClicks(element: HTMLElement, times = 10): void {
-  for(let i=0; i < times; i++) {
-    element.click();
-  }
-}
 `;
       await fs.writeFile(path.join(testDir, "fuzz.ts"), fuzzContent, "utf8");
     } catch (e) {
