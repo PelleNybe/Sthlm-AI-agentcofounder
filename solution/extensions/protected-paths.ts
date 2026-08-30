@@ -29,7 +29,10 @@ export default function protectedPaths(pi: ExtensionAPI) {
 
   pi.on("before_agent_start", async (event) => ({
     systemPrompt: stripPiDocumentationBlock(event.systemPrompt) +
-      "\n\n## Qwen Model Function Calling Optimization:\nAlways output well-formed JSON arguments for tool calls. Ensure all file paths passed to write/edit tools are relative to the current working directory.",
+      "\n\n## Qwen-2.5-Coder Function Calling Optimization:\n" +
+      "- Always output well-formed JSON arguments for tool calls.\n" +
+      "- Ensure all file paths passed to write/edit tools are relative to the current working directory.\n" +
+      "- Avoid chaining multiple identical tool calls. Merge edits when possible.",
   }));
 
   pi.on("tool_call", async (event, context) => {
@@ -40,6 +43,7 @@ export default function protectedPaths(pi: ExtensionAPI) {
     const outsideApp = relative.startsWith("..") || path.isAbsolute(relative);
     const segments = relative.split(path.sep);
     const basename = path.basename(absolute).toLowerCase();
+
     const protectedPath =
       outsideApp ||
       segments.includes(".git") ||
@@ -47,9 +51,10 @@ export default function protectedPaths(pi: ExtensionAPI) {
       basename === "result.json" ||
       basename === ".env" ||
       basename.startsWith(".env.");
+
     if (!protectedPath) return undefined;
 
     if (context.hasUI) context.ui.notify(`Blocked write to protected path: ${candidate}`, "warning");
-    return { block: true, reason: "Path is outside the app workspace or is runner-owned" };
+    return { block: true, reason: "Security guard: Path is outside the app workspace or is runner-owned. Write to an allowed directory instead." };
   });
 }

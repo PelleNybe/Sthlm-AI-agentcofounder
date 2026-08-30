@@ -18,9 +18,15 @@ export default function domainScaffolderSkill(pi: ExtensionAPI) {
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return fallback;
-    return JSON.parse(raw) as T;
+    const parsed = JSON.parse(raw);
+    if (parsed === null || typeof parsed !== 'object') {
+      return fallback;
+    }
+    return parsed as T;
   } catch (e) {
-    console.error(\`Error reading \${key} from local storage, falling back.\`, e);
+    console.warn(\`Error reading \${key} from local storage, falling back.\`, e);
+    // Auto-recover by resetting corrupt data
+    saveData(key, fallback);
     return fallback;
   }
 }
@@ -29,7 +35,15 @@ export function saveData<T>(key: string, data: T): void {
   try {
     localStorage.setItem(key, JSON.stringify(data));
   } catch (e) {
-    console.error(\`Error writing \${key} to local storage.\`, e);
+    console.error(\`Error writing \${key} to local storage. Quota might be exceeded.\`, e);
+  }
+}
+
+export function clearData(key: string): void {
+  try {
+    localStorage.removeItem(key);
+  } catch (e) {
+    console.error(\`Error removing \${key} from local storage.\`, e);
   }
 }
 `;
