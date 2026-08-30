@@ -12,5 +12,20 @@ export function pruneTypeScriptContext(sourceCode: string): string {
   return sourceCode
     .replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '') // Strip block and line comments
     .replace(/^\s*[\r\n]/gm, '') // Remove empty lines
+    .replace(/^[ \t]+/gm, '') // Remove leading spaces on lines (basic minification)
     .trim();
+}
+
+/**
+ * Prompt Context Pruner
+ * Compresses system prompts and markdown documents while preserving headers and directives.
+ */
+export function compressPromptText(text: string): string {
+  if (!text) return '';
+
+  return text
+    .split('\n')
+    .map((line: string) => line.trim())
+    .filter((line: string) => line.length > 0)
+    .join('\n');
 }
