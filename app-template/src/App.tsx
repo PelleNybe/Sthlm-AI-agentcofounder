@@ -2,7 +2,7 @@ import { Dashboard } from "./Dashboard";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { Moon, Sun, Monitor, Menu } from "lucide-react";
 import { useTheme } from "./useTheme";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 export function App() {
   const { theme, setTheme } = useTheme();
@@ -56,8 +56,10 @@ export function App() {
             {/* Mobile menu button */}
             <div className="md:hidden flex items-center">
               <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                onClick={() => setMobileMenuOpen(prev => !prev)}
                 className="p-2 rounded-md text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-800 focus:outline-none"
+                aria-expanded={mobileMenuOpen}
+                aria-label="Toggle mobile menu"
               >
                 <Menu size={20} />
               </button>
