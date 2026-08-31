@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart, BarChart, Bar } from "recharts";
 import { Settings, X, Activity, Server, Clock, ArrowUpRight, ArrowDownRight, Zap } from "lucide-react";
 import { useLocalStorage } from "./useLocalStorage";
 
@@ -12,7 +12,7 @@ interface ChartConfig {
   strokeColor: string;
   strokeWidth: number;
   showGrid: boolean;
-  chartType: "line" | "area";
+  chartType: "line" | "area" | "bar";
 }
 
 const DEFAULT_CONFIG: ChartConfig = {
@@ -22,7 +22,7 @@ const DEFAULT_CONFIG: ChartConfig = {
   chartType: "area"
 };
 
-function MetricCard({ title, value, trend, icon: Icon, color }: { title: string, value: string | number, trend: number, icon: any, color: string }) {
+const MetricCard = React.memo(function MetricCard({ title, value, trend, icon: Icon, color }: { title: string, value: string | number, trend: number, icon: any, color: string }) {
   const isPositive = trend >= 0;
   return (
     <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:border-slate-300 dark:hover:border-slate-600 opacity-0 animate-slide-up-fade">
@@ -39,7 +39,7 @@ function MetricCard({ title, value, trend, icon: Icon, color }: { title: string,
       <p className="text-2xl font-bold text-slate-900 dark:text-white">{value}</p>
     </div>
   );
-}
+});
 
 export function Dashboard() {
   const [data, setData] = useState<ActivityData[]>([]);
@@ -131,7 +131,7 @@ export function Dashboard() {
     );
   }
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = React.memo(({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white/95 dark:bg-slate-800/95 border border-slate-200 dark:border-slate-700 p-4 rounded-xl shadow-xl backdrop-blur-sm">
@@ -146,7 +146,7 @@ export function Dashboard() {
       );
     }
     return null;
-  };
+  });
 
   return (
     <div className="w-full flex flex-col gap-6">
@@ -194,9 +194,10 @@ export function Dashboard() {
           </div>
 
           <button
-            onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+            onClick={() => setIsSettingsOpen((prev) => !prev)}
             className="p-2 self-end sm:self-auto text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/80 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg transition-all active:scale-95"
             aria-label="Toggle settings"
+            aria-expanded={isSettingsOpen}
           >
             {isSettingsOpen ? <X size={18} /> : <Settings size={18} />}
           </button>
@@ -235,6 +236,12 @@ export function Dashboard() {
                      className={`flex-1 text-xs py-1 rounded-md transition-colors ${config.chartType === 'area' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-medium' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
                    >
                      Area
+                   </button>
+                   <button
+                     onClick={() => setConfig({...config, chartType: 'bar'})}
+                     className={`flex-1 text-xs py-1 rounded-md transition-colors ${config.chartType === 'bar' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-medium' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+                   >
+                     Bar
                    </button>
                 </div>
               </div>
@@ -313,6 +320,37 @@ export function Dashboard() {
                   animationEasing="ease-out"
                 />
               </AreaChart>
+            ) : config.chartType === 'bar' ? (
+              <BarChart data={data} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
+                {config.showGrid && (
+                  <CartesianGrid stroke="#e2e8f0" strokeDasharray="4 4" vertical={false} opacity={0.4} />
+                )}
+                <XAxis
+                  dataKey="time"
+                  stroke="#94a3b8"
+                  tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
+                  tickLine={false}
+                  axisLine={false}
+                  padding={{ left: 10, right: 10 }}
+                  dy={10}
+                />
+                <YAxis
+                  stroke="#94a3b8"
+                  tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `${value}`}
+                  dx={-10}
+                />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
+                <Bar
+                  dataKey="activity"
+                  fill={config.strokeColor}
+                  radius={[4, 4, 0, 0]}
+                  animationDuration={1500}
+                  animationEasing="ease-out"
+                />
+              </BarChart>
             ) : (
               <LineChart data={data} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
                 {config.showGrid && (
