@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart, BarChart, Bar } from "recharts";
 import { Settings, X, Activity, Server, Clock, ArrowUpRight, ArrowDownRight, Zap } from "lucide-react";
 import { useLocalStorage } from "./useLocalStorage";
 
@@ -12,7 +12,7 @@ interface ChartConfig {
   strokeColor: string;
   strokeWidth: number;
   showGrid: boolean;
-  chartType: "line" | "area";
+  chartType: "line" | "area" | "bar";
 }
 
 const DEFAULT_CONFIG: ChartConfig = {
@@ -237,6 +237,12 @@ export function Dashboard() {
                    >
                      Area
                    </button>
+                   <button
+                     onClick={() => setConfig({...config, chartType: 'bar'})}
+                     className={`flex-1 text-xs py-1 rounded-md transition-colors ${config.chartType === 'bar' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-medium' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+                   >
+                     Bar
+                   </button>
                 </div>
               </div>
 
@@ -314,6 +320,37 @@ export function Dashboard() {
                   animationEasing="ease-out"
                 />
               </AreaChart>
+            ) : config.chartType === 'bar' ? (
+              <BarChart data={data} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
+                {config.showGrid && (
+                  <CartesianGrid stroke="#e2e8f0" strokeDasharray="4 4" vertical={false} opacity={0.4} />
+                )}
+                <XAxis
+                  dataKey="time"
+                  stroke="#94a3b8"
+                  tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
+                  tickLine={false}
+                  axisLine={false}
+                  padding={{ left: 10, right: 10 }}
+                  dy={10}
+                />
+                <YAxis
+                  stroke="#94a3b8"
+                  tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `${value}`}
+                  dx={-10}
+                />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
+                <Bar
+                  dataKey="activity"
+                  fill={config.strokeColor}
+                  radius={[4, 4, 0, 0]}
+                  animationDuration={1500}
+                  animationEasing="ease-out"
+                />
+              </BarChart>
             ) : (
               <LineChart data={data} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
                 {config.showGrid && (
