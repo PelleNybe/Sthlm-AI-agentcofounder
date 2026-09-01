@@ -1,15 +1,9 @@
 import { Worker, Queue } from 'bullmq';
 import { Redis } from 'ioredis';
 import { AgentCofounderOrchestrator } from '../orchestration/agentBrain.js';
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import pg from 'pg';
+import { prisma } from '../app.js';
 
-// Setup Prisma
-const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/postgres';
-const pool = new pg.Pool({ connectionString });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+
 
 // Setup Redis connection for BullMQ
 const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';

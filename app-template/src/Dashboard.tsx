@@ -41,6 +41,23 @@ const MetricCard = React.memo(function MetricCard({ title, value, trend, icon: I
   );
 });
 
+const CustomTooltip = React.memo(({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white/95 dark:bg-slate-800/95 border border-slate-200 dark:border-slate-700 p-4 rounded-xl shadow-xl backdrop-blur-sm">
+        <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">{label}</p>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: payload[0].color }} />
+          <span className="font-semibold text-slate-900 dark:text-white">
+            {payload[0].value} {payload[0].name}
+          </span>
+        </div>
+      </div>
+    );
+  }
+  return null;
+});
+
 export function Dashboard() {
   const [data, setData] = useState<ActivityData[]>([]);
   const [loading, setLoading] = useState(true);
