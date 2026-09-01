@@ -19,7 +19,15 @@ const adapter = new PrismaPg(pool);
 export const prisma = new PrismaClient({ adapter });
 
 export const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '100kb' }));
+
+// Security headers middleware
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  next();
+});
 
 // Auth middleware
 export const requireAuth = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -53,9 +61,12 @@ export const requireAuth = async (req: express.Request, res: express.Response, n
 };
 
 // Fetch historical agent tasks
-app.get('/api/tasks', async (req, res) => {
+app.get('/api/tasks', requireAuth, async (req, res) => {
+  const authUserId = (req as any).user.id;
   const tasks = await prisma.agentTask.findMany({
-    orderBy: { createdAt: 'desc' }
+    where: { userId: authUserId },
+    orderBy: { createdAt: 'desc' },
+    take: 50
   });
   const validated = TasksResponseSchema.parse(tasks);
   res.json(validated);
@@ -87,9 +98,12 @@ app.post('/api/tasks', requireAuth, async (req, res) => {
 });
 
 // Get the status of external integrations
-app.get('/api/integrations', async (req, res) => {
+app.get('/api/integrations', requireAuth, async (req, res) => {
+  const authUserId = (req as any).user.id;
   const integrations = await prisma.externalIntegration.findMany({
-    orderBy: { createdAt: 'desc' }
+    where: { userId: authUserId },
+    orderBy: { createdAt: 'desc' },
+    take: 50
   });
   const validated = IntegrationsResponseSchema.parse(integrations);
   res.json(validated);

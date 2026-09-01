@@ -15,6 +15,12 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     try {
       const valueToStore =
         value instanceof Function ? value(storedValue) : value;
+
+      // Early return to prevent unnecessary serialization and localStorage writes
+      if (storedValue === valueToStore) return;
+      // Object comparison fallback (if needed) or simple stringify check if you want deeper equality.
+      // But basic reference equality is a massive win here for scalar values and referentially stable objects.
+
       setStoredValue(valueToStore);
       window.localStorage.setItem(key, JSON.stringify(valueToStore));
     } catch (error) {
