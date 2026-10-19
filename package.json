@@ -19,13 +19,13 @@
     "check": "npm run typecheck && npm run test && npm run app:test && npm run app:build"
   },
   "dependencies": {
-    "@earendil-works/pi-coding-agent": "0.84.1",
+    "@earendil-works/pi-coding-agent": "1.3.0",
     "ajv": "8.20.0"
   },
   "devDependencies": {
     "@types/node": "24.12.4",
     "tsx": "4.20.6",
     "typescript": "5.9.3",
-    "vitest": "4.1.5"
+    "vitest": "5.0.5"
   }
 }
